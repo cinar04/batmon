@@ -177,6 +177,26 @@
   .kiosk-stat-val.small{font-size:12px;}
 
   /* Çıkış butonu */
+
+  /* ── KİOSK KULLANIM BUTONU ── */
+  .kiosk-use-btn{background:rgba(0,229,255,.12);border:1px solid var(--accent);color:var(--accent);padding:5px 12px;font-family:'Barlow Condensed',sans-serif;font-size:12px;letter-spacing:2px;text-transform:uppercase;cursor:pointer;transition:all .2s;white-space:nowrap;}
+  .kiosk-use-btn:hover{background:var(--accent);color:var(--bg);}
+  .kiosk-use-btn.active{background:var(--accent);color:var(--bg);}
+
+  /* ── KİOSK KULLANIM MODAL ── */
+  .ku-box{background:#10141a;border:2px solid var(--accent);padding:28px;min-width:300px;max-width:420px;width:90%;box-shadow:0 0 40px rgba(0,229,255,.2);position:relative;}
+  .ku-box::before{content:'';position:absolute;top:0;left:0;width:3px;height:100%;background:var(--accent);}
+  .ku-title{font-size:20px;font-weight:900;letter-spacing:4px;text-transform:uppercase;color:var(--accent);margin-bottom:8px;}
+  .ku-desc{font-family:'Share Tech Mono',monospace;font-size:11px;color:var(--text2);margin-bottom:18px;line-height:1.6;}
+  .ku-row{display:flex;flex-direction:column;gap:6px;margin-bottom:18px;}
+  .ku-input{background:#161c25;border:1px solid var(--border2);color:var(--text);padding:12px 14px;font-family:'Share Tech Mono',monospace;font-size:22px;outline:none;width:100%;transition:border-color .2s;}
+  .ku-input:focus{border-color:var(--accent);}
+  .ku-hint{font-family:'Share Tech Mono',monospace;font-size:11px;color:var(--text3);}
+  .ku-btns{display:flex;gap:10px;}
+  .ku-btn-yes{flex:1;background:var(--accent);border:none;color:#0a0c0f;padding:13px;font-family:'Barlow Condensed',sans-serif;font-size:14px;font-weight:900;letter-spacing:3px;text-transform:uppercase;cursor:pointer;transition:all .2s;}
+  .ku-btn-yes:hover{box-shadow:0 0 20px rgba(0,229,255,.3);}
+  .ku-btn-no{flex:1;background:transparent;border:1px solid var(--border2);color:var(--text2);padding:13px;font-family:'Barlow Condensed',sans-serif;font-size:14px;letter-spacing:3px;text-transform:uppercase;cursor:pointer;transition:all .2s;}
+  .ku-btn-no:hover{border-color:var(--red);color:var(--red);}
   .kiosk-exit-btn{
     padding:0 20px;display:flex;align-items:center;justify-content:center;
     background:rgba(255,51,85,.1);border-left:1px solid var(--red);
@@ -251,6 +271,38 @@
   .setup-skip:hover { border-color:var(--text2); color:var(--text2); }
   .setup-hint { font-family:'Share Tech Mono',monospace; font-size:10px; color:var(--text3); margin-top:14px; line-height:1.6; }
 
+
+  /* ── CİHAZ FOTOĞRAFI ── */
+  .device-photo-wrap{width:100%;height:140px;border:1px dashed var(--border2);background:var(--bg3);display:flex;align-items:center;justify-content:center;cursor:pointer;transition:border-color .2s;position:relative;overflow:hidden;margin-bottom:14px;}
+  .device-photo-wrap:hover{border-color:var(--accent);}
+  .device-photo-wrap img{width:100%;height:100%;object-fit:cover;}
+  .device-photo-placeholder{display:flex;flex-direction:column;align-items:center;gap:6px;color:var(--text3);}
+  .device-photo-placeholder span{font-size:28px;}
+  .device-photo-placeholder small{font-family:'Share Tech Mono',monospace;font-size:10px;letter-spacing:2px;}
+  .device-photo-del{position:absolute;top:6px;right:6px;background:rgba(255,51,85,.85);border:none;color:#fff;width:24px;height:24px;cursor:pointer;font-size:14px;display:none;align-items:center;justify-content:center;}
+  .device-photo-wrap:hover .device-photo-del{display:flex;}
+
+  /* ── HAVA DURUMU ── */
+  .kiosk-weather{display:flex;flex-direction:column;align-items:center;justify-content:center;padding:10px 14px;border-right:1px solid var(--border);min-width:90px;}
+  .kiosk-weather-icon{font-size:22px;line-height:1;}
+  .kiosk-weather-temp{font-family:'Share Tech Mono',monospace;font-size:16px;font-weight:900;color:var(--accent);}
+  .kiosk-weather-desc{font-family:'Share Tech Mono',monospace;font-size:9px;color:var(--text3);letter-spacing:1px;text-transform:uppercase;text-align:center;}
+
+  /* ── SEYAHAT GEÇMİŞİ ── */
+  .trip-history-panel{display:flex;flex-direction:column;gap:2px;max-height:220px;overflow-y:auto;}
+  .trip-history-item{padding:9px 12px;background:var(--bg3);border-left:3px solid var(--yellow);font-size:11px;cursor:pointer;transition:background .15s;}
+  .trip-history-item:hover{background:var(--border);}
+  .trip-hist-title{font-weight:700;color:var(--yellow);letter-spacing:1px;text-transform:uppercase;font-size:11px;}
+  .trip-hist-detail{font-family:'Share Tech Mono',monospace;font-size:10px;color:var(--text3);margin-top:2px;}
+  .trip-hist-empty{text-align:center;padding:24px 0;color:var(--text3);font-family:'Share Tech Mono',monospace;font-size:11px;letter-spacing:2px;}
+
+  /* ── SEYAHAT GEÇMİŞİ MODAL ── */
+  #tripHistoryModal{display:none;position:fixed;inset:0;z-index:2000;background:rgba(0,0,0,.85);align-items:center;justify-content:center;}
+  #tripHistoryModal.active{display:flex;}
+  .trip-hist-modal{background:var(--bg2);border:1px solid var(--yellow);padding:28px;max-width:500px;width:92%;max-height:80vh;overflow-y:auto;position:relative;}
+  .trip-hist-modal::before{content:'';position:absolute;top:0;left:0;width:3px;height:100%;background:var(--yellow);}
+  .trip-hist-modal-title{font-size:18px;font-weight:900;letter-spacing:4px;text-transform:uppercase;color:var(--yellow);margin-bottom:18px;}
+
   @media(max-width:860px){.main{grid-template-columns:1fr;}}
 </style>
 </head>
@@ -304,10 +356,21 @@
 
     <div class="panel">
       <div class="panel-label">// cihaz · pil durumu</div>
+      <!-- Cihaz Fotoğrafı -->
+      <div class="device-photo-wrap" id="photoWrap" onclick="document.getElementById('photoInput').click()">
+        <div class="device-photo-placeholder" id="photoPlaceholder">
+          <span>📷</span>
+          <small>CİHAZ FOTOĞRAFI EKLE</small>
+        </div>
+        <img id="photoImg" style="display:none;" alt="cihaz"/>
+        <button class="device-photo-del" id="photoDelBtn" onclick="event.stopPropagation();removePhoto()">✕</button>
+      </div>
+      <input type="file" id="photoInput" accept="image/*" style="display:none" onchange="handlePhoto(event)"/>
+
       <div class="device-top">
         <div>
           <div class="device-name">OPEL NUNA<br>WARRIANT</div>
-          <div class="device-meta">UID: ONW-2024-X · KAP: 30:00 · KUL: 29:00</div>
+          <div class="device-meta">UID: ONW-2024-X · BATARYA ÖMRÜ: 45 DAKİKA</div>
         </div>
         <div class="status-badge ok" id="statusBadge"><span>●</span> <span id="statusText">AKTİF</span></div>
       </div>
@@ -325,12 +388,12 @@
         </div>
         <div class="batt-row">
           <span class="batt-row-label">TOPLAM KAPASİTE</span>
-          <span class="batt-row-val muted">30:00 dk</span>
+          <span class="batt-row-val muted">45:00 dk</span>
         </div>
       </div>
       <div class="decay-info">
         <span>⚡</span>
-        <span>1dk kullanım = 1dk 10sn düşüş &nbsp;·&nbsp; 2dk = 2dk 20sn &nbsp;·&nbsp; Bekleme modunda düşüş yok</span>
+        <span>Hizmetlerden dolayı batarya ömrü <b>45 dakikadır</b></span>
       </div>
     </div>
 
@@ -346,6 +409,17 @@
       <div class="metric">
         <div class="metric-label">Şarj Sayısı</div>
         <div class="metric-val" id="mCharges">0<small> kez</small></div>
+      </div>
+    </div>
+
+    <!-- SEYAHAT GEÇMİŞİ PANELİ -->
+    <div class="panel">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;">
+        <div class="panel-label" style="margin-bottom:0;">// seyahat geçmişi</div>
+        <button class="btn-clear-log" onclick="clearTripHistory()">🗑 TEMİZLE</button>
+      </div>
+      <div class="trip-history-panel" id="tripHistoryPanel">
+        <div class="trip-hist-empty">// HENÜZ SEYAHAT YOK</div>
       </div>
     </div>
   </div>
@@ -393,7 +467,7 @@
       <div class="kiosk-batt-pct" id="kBattPct" style="color:var(--green);">100%</div>
       <div class="kiosk-remain" id="kRemain">29:00</div>
     </div>
-    <div class="kiosk-paused">● PİL SAYIMI DURDURULDU</div>
+    <div id="kioskBattStatus" class="kiosk-paused" style="color:var(--red);">⏱ CANLI SAYAÇ AKTİF</div>
   </div>
 
   <!-- Harita -->
@@ -420,6 +494,11 @@
     <div class="kiosk-stat">
       <div class="kiosk-stat-label">HIZ</div>
       <div class="kiosk-stat-val" id="kSpeed">— km/s</div>
+    </div>
+    <div class="kiosk-weather" id="kWeather">
+      <div class="kiosk-weather-icon" id="kWeatherIcon">—</div>
+      <div class="kiosk-weather-temp" id="kWeatherTemp">—°</div>
+      <div class="kiosk-weather-desc" id="kWeatherDesc">HAVA</div>
     </div>
     <div class="kiosk-exit-btn" onclick="exitKiosk()">✕ ÇIKIŞ</div>
   </div>
@@ -497,13 +576,22 @@
   </div>
 </div>
 
+<!-- ══ SEYAHAT GEÇMİŞİ MODAL ══ -->
+<div id="tripHistoryModal">
+  <div class="trip-hist-modal">
+    <div class="trip-hist-modal-title">🗺 SEYAHAT DETAYI</div>
+    <div id="tripHistDetail"></div>
+    <button class="trip-close" style="margin-top:20px;" onclick="document.getElementById('tripHistoryModal').classList.remove('active')">✓ KAPAT</button>
+  </div>
+</div>
+
 <div class="toast" id="toast"></div>
 
 <script>
 // ════════════════════════════════════════
 //  SABİTLER
 // ════════════════════════════════════════
-const MAX_S       = 29 * 60;   // 1740 sn kullanılabilir
+const MAX_S       = 45 * 60;   // 2700 sn = 45dk kullanılabilir kapasite
 // Formül: costS = girilen_dk*60 + ((girilen_dk*60)/30)*10
 // Örnek: 1dk → 60 + (60/30)*10 = 60+20 = 80sn (1dk 20sn)
 // Örnek: 2dk → 120 + (120/30)*10 = 120+40 = 160sn (2dk 40sn)
@@ -520,7 +608,7 @@ const SYNC_URL    = '/api/sync';
 let state = (()=>{ try{ return JSON.parse(localStorage.getItem('batmon_nuna'))||null; }catch(e){return null;} })() || {
   remainS:MAX_S, totalUsedS:0, sessions:0, charges:0, log:[]
 };
-if(state.remainS === undefined || state.remainS === null) state.remainS = MAX_S;
+if(state.remainS === undefined || state.remainS === null || state.remainS > MAX_S) state.remainS = MAX_S;
 
 // ════════════════════════════════════════
 //  NETLIFY BLOBS SENKRON
@@ -631,16 +719,19 @@ function chargeDevice(){
   if(state.remainS>=MAX_S){ showToast('Pil zaten tam dolu',false); return; }
   state.remainS = MAX_S;
   state.charges++;
-  state.log.push({type:'charge',action:'PİL ŞARJ EDİLDİ',detail:`→ ${fmt(MAX_S)}`,time:now()});
+  state.log.push({type:'charge',action:'PİL ŞARJ EDİLDİ',detail:`→ ${fmt(MAX_S)} (45dk)`,time:now()});
   save(); updateUI();
   showToast('⚡ PİL TAMAMEN ŞARJ EDİLDİ');
 }
 
 function clearLog(){
-  if(!confirm('Tüm geçmiş silinecek. Emin misin?')) return;
-  state.log = [];
-  save(); renderLog();
-  showToast('🗑 Geçmiş silindi');
+  if(!confirm('Geçmiş, oturum sayısı, toplam kullanım ve şarj sayısı sıfırlanacak. Emin misin?')) return;
+  state.log        = [];
+  state.totalUsedS = 0;
+  state.sessions   = 0;
+  state.charges    = 0;
+  save(); updateUI();
+  showToast('🗑 Geçmiş ve istatistikler sıfırlandı');
 }
 
 // ════════════════════════════════════════
@@ -658,7 +749,7 @@ function updateUI(){
   fill.style.width=p+'%'; fill.style.backgroundColor=bg;
   const pEl=document.getElementById('battPct');
   pEl.style.color=color; pEl.textContent=p+'%';
-  document.getElementById('remainTime').textContent=fmt(state.remainS);
+  document.getElementById('remainTime').textContent=fmt(displayRemain());
 
   const badge=document.getElementById('statusBadge'), sTxt=document.getElementById('statusText');
   badge.className='status-badge';
@@ -681,7 +772,9 @@ function updateUI(){
   document.getElementById('mCharges').innerHTML=state.charges+'<small> kez</small>';
 
   updateKioskBatt();
+  checkSoundAlert(p);
   renderLog();
+  renderTripHistory();
 }
 
 function updateKioskBatt(){
@@ -696,7 +789,7 @@ function updateKioskBatt(){
   kf.style.width=p+'%'; kf.style.backgroundColor=bg;
   document.getElementById('kBattPct').style.color=c;
   document.getElementById('kBattPct').textContent=p+'%';
-  document.getElementById('kRemain').textContent=fmt(state.remainS);
+  document.getElementById('kRemain').textContent=fmt(displayRemain());
 }
 
 function renderLog(){
@@ -754,9 +847,11 @@ function enterKiosk(){
   document.getElementById('kStartPos').textContent='📡 Konum alınıyor...';
   document.getElementById('kCurPos').textContent='— —';
   document.getElementById('kSpeed').textContent='— km/s';
+  kioskLiveTick = 0; // canlı sayaç sıfırla
 
   if(tripElapsedTimer) clearInterval(tripElapsedTimer);
   tripElapsedTimer=setInterval(updateElapsed,1000);
+  startKioskLive();
 
   if(!navigator.geolocation){ showToast('⚠ GPS desteklenmiyor',true); return; }
   navigator.geolocation.getCurrentPosition(
@@ -774,6 +869,7 @@ function exitKiosk(){
   kioskActive=false;
   document.getElementById('kioskOverlay').classList.remove('active');
   releaseWakeLock();
+  stopKioskLive();
   if(geoWatchId!==null){navigator.geolocation.clearWatch(geoWatchId);geoWatchId=null;}
   if(tripElapsedTimer){clearInterval(tripElapsedTimer);tripElapsedTimer=null;}
   showTripSummary();
@@ -823,7 +919,7 @@ function reverseGeocode(lat,lng,type){
   fetch(`https://nominatim.openstreetmap.org/reverse?lat=${lat}&lon=${lng}&format=json`)
     .then(r=>r.json()).then(d=>{
       const addr=d.display_name?d.display_name.split(',').slice(0,3).join(', '):`${lat.toFixed(4)}, ${lng.toFixed(4)}`;
-      if(type==='start'){document.getElementById('kStartPos').textContent=addr.substring(0,40);window._tripStartAddr=addr;}
+      if(type==='start'){document.getElementById('kStartPos').textContent=addr.substring(0,40);window._tripStartAddr=addr;fetchWeather(lat,lng);}
       else window._tripEndAddr=addr;
     }).catch(()=>{ if(type==='start')window._tripStartAddr=`${lat.toFixed(5)}, ${lng.toFixed(5)}`; else window._tripEndAddr=`${lat.toFixed(5)}, ${lng.toFixed(5)}`; });
 }
@@ -839,17 +935,79 @@ function showTripSummary(){
   const durS=Math.floor((endTime-tripStartTime)/1000);
   if(tripLastPos) reverseGeocode(tripLastPos.lat,tripLastPos.lng,'end');
   setTimeout(()=>{
-    document.getElementById('sumStart').textContent=window._tripStartAddr||'— konum alınamadı';
-    document.getElementById('sumEnd').textContent=window._tripEndAddr||'— konum alınamadı';
-    document.getElementById('sumDist').textContent=(tripDistM/1000).toFixed(2)+' km ('+Math.round(tripDistM)+' m)';
-    document.getElementById('sumDur').textContent=fmtDur(durS);
-    document.getElementById('sumStartTime').textContent=tripStartTime.toLocaleTimeString('tr-TR');
-    document.getElementById('sumEndTime').textContent=endTime.toLocaleTimeString('tr-TR');
+    const startAddr = window._tripStartAddr||'— konum alınamadı';
+    const endAddr   = window._tripEndAddr||'— konum alınamadı';
+    const distTxt   = (tripDistM/1000).toFixed(2)+' km ('+Math.round(tripDistM)+' m)';
+    const durTxt    = fmtDur(durS);
+    const startTime = tripStartTime.toLocaleTimeString('tr-TR');
+    const endTimeTxt= endTime.toLocaleTimeString('tr-TR');
+    const dateStr   = tripStartTime.toLocaleDateString('tr-TR');
+
+    document.getElementById('sumStart').textContent=startAddr;
+    document.getElementById('sumEnd').textContent=endAddr;
+    document.getElementById('sumDist').textContent=distTxt;
+    document.getElementById('sumDur').textContent=durTxt;
+    document.getElementById('sumStartTime').textContent=startTime;
+    document.getElementById('sumEndTime').textContent=endTimeTxt;
     document.getElementById('tripSummary').classList.add('active');
+
+    // Seyahat geçmişine kaydet (sadece en az 10m gidilmişse)
+    if(tripDistM >= 10){
+      const trip = {
+        id: Date.now(),
+        date: dateStr,
+        startTime, endTime: endTimeTxt,
+        startAddr, endAddr,
+        dist: distTxt, dur: durTxt,
+        distM: Math.round(tripDistM)
+      };
+      if(!state.tripHistory) state.tripHistory=[];
+      state.tripHistory.unshift(trip);
+      if(state.tripHistory.length>50) state.tripHistory.pop(); // max 50 seyahat
+      save();
+      renderTripHistory();
+    }
   }, tripLastPos?1200:0);
 }
 
 function closeTripSummary(){ document.getElementById('tripSummary').classList.remove('active'); window._tripStartAddr=null; window._tripEndAddr=null; }
+
+function renderTripHistory(){
+  const el = document.getElementById('tripHistoryPanel');
+  if(!el) return;
+  const trips = state.tripHistory||[];
+  if(!trips.length){ el.innerHTML='<div class="trip-hist-empty">// HENÜZ SEYAHAT YOK</div>'; return; }
+  el.innerHTML = trips.map((t,i)=>`
+    <div class="trip-history-item" onclick="showTripDetail(${i})">
+      <div class="trip-hist-title">🗺 ${t.date} · ${t.startTime}–${t.endTime}</div>
+      <div class="trip-hist-detail">${t.dist} · ${t.dur} · ${(t.startAddr||'').substring(0,35)}</div>
+    </div>`).join('');
+}
+
+function showTripDetail(i){
+  const t = (state.tripHistory||[])[i];
+  if(!t) return;
+  document.getElementById('tripHistDetail').innerHTML=`
+    <div style="display:flex;flex-direction:column;gap:10px;">
+      ${[
+        ['Tarih', t.date],
+        ['Başlangıç Saati', t.startTime],
+        ['Bitiş Saati', t.endTime],
+        ['Başlangıç', t.startAddr],
+        ['Bitiş', t.endAddr],
+        ['Mesafe', t.dist],
+        ['Süre', t.dur],
+      ].map(([l,v])=>`<div class="trip-row"><span class="trip-row-label">${l}</span><span class="trip-row-val">${v}</span></div>`).join('')}
+    </div>`;
+  document.getElementById('tripHistoryModal').classList.add('active');
+}
+
+function clearTripHistory(){
+  if(!confirm('Tüm seyahat geçmişi silinecek. Emin misin?')) return;
+  state.tripHistory=[];
+  save(); renderTripHistory();
+  showToast('🗑 Seyahat geçmişi silindi');
+}
 function fmtDur(s){ const h=Math.floor(s/3600),m=Math.floor((s%3600)/60),sec=s%60; return h>0?`${h}s ${m}dk ${sec}sn`:`${m}dk ${sec}sn`; }
 
 // ════════════════════════════════════════
@@ -878,6 +1036,7 @@ function initWakeLock(){
 function fmt(s){ const v=Math.max(0,s); return `${Math.floor(v/60)}:${String(v%60).padStart(2,'0')}`; }
 function fmtCost(s){ return `${Math.floor(s/60)}dk ${s%60}sn`; }
 function pct100(){ return Math.max(0,Math.round((state.remainS/MAX_S)*100)); }
+function displayRemain(){ return state.remainS; }
 function now(){ return new Date().toLocaleTimeString('tr-TR'); }
 
 // Cost hint
@@ -909,18 +1068,270 @@ function showToast(msg,isErr=false){
 // Saat
 function tick(){ document.getElementById('clock').textContent=new Date().toLocaleTimeString('tr-TR'); }
 
+
+
 // Enter / Escape
 document.addEventListener('keydown',e=>{
   if(e.key==='Enter'&&['useInput','descInput'].includes(document.activeElement.id)) addUsage();
   if(e.key==='Escape'&&kioskActive) exitKiosk();
 });
 
+
+// ════════════════════════════════════════
+//  CİHAZ FOTOĞRAFI
+// ════════════════════════════════════════
+function handlePhoto(e){
+  const file=e.target.files[0]; if(!file) return;
+  const reader=new FileReader();
+  reader.onload=ev=>{
+    const data=ev.target.result;
+    localStorage.setItem('batmon_photo',data);
+    applyPhoto(data);
+  };
+  reader.readAsDataURL(file);
+}
+function applyPhoto(data){
+  const img=document.getElementById('photoImg');
+  const ph=document.getElementById('photoPlaceholder');
+  if(!img||!ph) return;
+  img.src=data; img.style.display='block';
+  ph.style.display='none';
+}
+function removePhoto(){
+  localStorage.removeItem('batmon_photo');
+  const img=document.getElementById('photoImg');
+  const ph=document.getElementById('photoPlaceholder');
+  if(img){ img.src=''; img.style.display='none'; }
+  if(ph) ph.style.display='flex';
+}
+function loadPhoto(){
+  const data=localStorage.getItem('batmon_photo');
+  if(data) applyPhoto(data);
+}
+
+// ════════════════════════════════════════
+//  HAVA DURUMU (Open-Meteo, ücretsiz, key yok)
+// ════════════════════════════════════════
+const WX_CODES={0:'☀️',1:'🌤',2:'⛅',3:'☁️',45:'🌫',48:'🌫',51:'🌦',53:'🌦',55:'🌧',61:'🌧',63:'🌧',65:'🌧',71:'🌨',73:'🌨',75:'❄️',80:'🌦',81:'🌧',82:'⛈',95:'⛈',96:'⛈',99:'⛈'};
+async function fetchWeather(lat,lng){
+  try{
+    const url=`https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lng}&current=temperature_2m,weathercode&timezone=auto`;
+    const res=await fetch(url);
+    const d=await res.json();
+    const temp=Math.round(d.current.temperature_2m);
+    const code=d.current.weathercode;
+    const icon=WX_CODES[code]||'🌡';
+    document.getElementById('kWeatherIcon').textContent=icon;
+    document.getElementById('kWeatherTemp').textContent=temp+'°C';
+    document.getElementById('kWeatherDesc').textContent='SICAKLIK';
+  }catch(e){ document.getElementById('kWeatherDesc').textContent='ALINAMADI'; }
+}
+
+// ════════════════════════════════════════
+//  SES UYARISI
+// ════════════════════════════════════════
+let audioCtx=null;
+function beep(freq=440,dur=0.3,vol=0.4){
+  try{
+    if(!audioCtx) audioCtx=new (window.AudioContext||window.webkitAudioContext)();
+    const osc=audioCtx.createOscillator();
+    const gain=audioCtx.createGain();
+    osc.connect(gain); gain.connect(audioCtx.destination);
+    osc.frequency.value=freq;
+    osc.type='square';
+    gain.gain.setValueAtTime(vol,audioCtx.currentTime);
+    gain.gain.exponentialRampToValueAtTime(0.001,audioCtx.currentTime+dur);
+    osc.start(); osc.stop(audioCtx.currentTime+dur);
+  }catch(e){}
+}
+function alertBeep(){
+  // Üç kısa bip
+  beep(880,0.15,0.5);
+  setTimeout(()=>beep(880,0.15,0.5),200);
+  setTimeout(()=>beep(660,0.4,0.5),400);
+}
+let lastAlertPct=null;
+function checkSoundAlert(pct){
+  if(pct<=10 && lastAlertPct>10){ alertBeep(); }
+  else if(pct<=25 && lastAlertPct>25){ beep(660,0.2,0.3); setTimeout(()=>beep(660,0.2,0.3),250); }
+  lastAlertPct=pct;
+}
+
+
+
+// ════════════════════════════════════════
+let kioskDeducting = false; // düşüş modu aktif mi
+
+function kioskAddUsage(){
+  // Modalı aç
+  document.getElementById('kioskUseModal').classList.add('active');
+  const inp = document.getElementById('kioskUseInput');
+  inp.value = '';
+  document.getElementById('kioskUseHint').textContent = '— dk giriniz';
+  document.getElementById('kioskUseHint').style.color = 'var(--text3)';
+  setTimeout(()=>inp.focus(), 100);
+}
+
+function kioskConfirmUsage(){
+  const inp  = document.getElementById('kioskUseInput');
+  const mins = parseFloat(inp.value);
+  if(isNaN(mins)||mins<=0){
+    inp.style.borderColor='var(--red)';
+    setTimeout(()=>inp.style.borderColor='',1200);
+    return;
+  }
+  if(state.remainS<=0){ showToast('⚠ PİL BOŞ',true); kioskDenyUsage(); return; }
+
+  const costS   = calcCost(mins);
+  const beforeS = state.remainS;
+
+  if(costS > state.remainS){
+    document.getElementById('kioskUseHint').textContent = `⚠ PİL YETMEZ! Maliyet ${fmtCost(costS)}, kalan ${fmt(state.remainS)}`;
+    document.getElementById('kioskUseHint').style.color = 'var(--red)';
+    inp.style.borderColor = 'var(--red)';
+    state.log.push({type:'warn',action:'PİL YETERSİZ (KİOSK)',detail:`${mins}dk istek · ${fmtCost(costS)} gerekli · ${fmt(beforeS)} kaldı`,time:now()});
+    save(); renderLog();
+    alertBeep();
+    return;
+  }
+
+  // Düş
+  state.remainS    -= costS;
+  state.totalUsedS += costS;
+  state.sessions++;
+  state.log.push({type:'use',action:`KİOSK KULLANIM · ${mins}dk`,detail:`Kiosk oturumu · −${fmtCost(costS)} · ${fmt(beforeS)}→${fmt(state.remainS)} · %${pct100()}`,time:now()});
+
+  kioskDeducting = true;
+  document.getElementById('kioskBattStatus').textContent = `⚡ ${mins}dk − ${fmtCost(costS)} DÜŞÜLDÜ`;
+  document.getElementById('kioskBattStatus').style.borderColor = 'var(--accent)';
+  document.getElementById('kioskBattStatus').style.color = 'var(--accent)';
+
+  save(); updateUI();
+  kioskDenyUsage(); // modalı kapat
+  showToast(`✓ ${mins}dk kiosk kullanımı · ${fmtCost(costS)} düşüldü`);
+  if(state.remainS===0){ showToast('⚠ PİL TAMAMEN BOŞ',true); alertBeep(); }
+}
+
+function kioskDenyUsage(){
+  document.getElementById('kioskUseModal').classList.remove('active');
+  if(!kioskDeducting){
+    document.getElementById('kioskBattStatus').textContent = '● PİL SAYIMI DURDURULDU';
+    document.getElementById('kioskBattStatus').style.color = '';
+    document.getElementById('kioskBattStatus').style.borderColor = '';
+  }
+}
+
+
+// ════════════════════════════════════════
+//  KİOSK CANLI PIL SAYACI
+// ════════════════════════════════════════
+let kioskLiveTick   = 0;   // kiosk'ta geçen saniye
+let kioskLiveTimer  = null;
+
+function startKioskLive(){
+  kioskLiveTick = 0;
+  if(kioskLiveTimer) clearInterval(kioskLiveTimer);
+  kioskLiveTimer = setInterval(()=>{
+    if(!kioskActive) return;
+    kioskLiveTick++;
+
+    // Her saniye -1sn pil düş
+    if(state.remainS > 0){
+      state.remainS = Math.max(0, state.remainS - 1);
+      state.totalUsedS++;
+      // Her 10sn'de bir kaydet (localStorage baskısını azalt)
+      if(kioskLiveTick % 10 === 0) save();
+      // Hem ana ekranı hem kiosk barı güncelle
+      updateBattDisplay();
+      if(state.remainS === 0){
+        save();
+        updateUI();
+        showToast('⚠ PİL TAMAMEN BOŞ', true);
+        alertBeep();
+      }
+    }
+
+    // Topbar sayacı güncelle
+    const el = document.getElementById('kioskBattStatus');
+    if(el){
+      const m = Math.floor(kioskLiveTick/60);
+      const s = kioskLiveTick % 60;
+      el.textContent = `⏱ ${String(m).padStart(2,'0')}:${String(s).padStart(2,'0')} · PİL: ${fmt(displayRemain())}`;
+    }
+  }, 1000);
+}
+
+function stopKioskLive(){
+  if(kioskLiveTimer){ clearInterval(kioskLiveTimer); kioskLiveTimer=null; }
+
+  // Kiosk kapanınca ekstra formül uygula:
+  // (geçen_sn / 30) * 10 = ekstra saniye
+  if(kioskLiveTick > 0){
+    const extraS = Math.round((kioskLiveTick / 30) * 10);
+    if(extraS > 0 && state.remainS > 0){
+      const before = state.remainS;
+      state.remainS = Math.max(0, state.remainS - extraS);
+      state.totalUsedS += extraS;
+      state.log.push({
+        type:'auto',
+        action:`KİOSK EKSTRA DÜŞÜŞ`,
+        detail:`${fmtDur(kioskLiveTick)} kullanım · ekstra −${fmtCost(extraS)} · ${fmt(before)}→${fmt(state.remainS)}`,
+        time:now()
+      });
+      save(); updateUI();
+    }
+  }
+  kioskLiveTick = 0;
+}
+
+
+// Sadece pil göstergelerini güncelle (her saniye çağrılır, hafif)
+function updateBattDisplay(){
+  const p = pct100();
+  let color, bg;
+  if(p>60){color='var(--green)';bg='rgba(0,255,136,.28)';}
+  else if(p>30){color='var(--yellow)';bg='rgba(255,204,0,.28)';}
+  else if(p>15){color='var(--orange)';bg='rgba(255,136,0,.28)';}
+  else{color='var(--red)';bg='rgba(255,51,85,.28)';}
+
+  // Ana ekran pil çubuğu
+  const fill = document.getElementById('battFill');
+  if(fill){ fill.style.width=p+'%'; fill.style.backgroundColor=bg; }
+
+  // Ana ekran yüzde
+  const pEl = document.getElementById('battPct');
+  if(pEl){ pEl.style.color=color; pEl.textContent=p+'%'; }
+
+  // Ana ekran kalan süre (saniye bazlı göster)
+  const remEl = document.getElementById('remainTime');
+  if(remEl) remEl.textContent = fmt(displayRemain());
+
+  // Kiosk pil barı
+  updateKioskBatt();
+
+  // Uyarı banner
+  const warn = document.getElementById('warnBanner');
+  const wTxt = document.getElementById('warnText');
+  if(warn && wTxt){
+    if(p===0){warn.classList.add('show');wTxt.textContent='PİL TAMAMEN BOŞ';}
+    else if(p<=15){warn.classList.add('show');wTxt.textContent=`KRİTİK — ${fmt(state.remainS)} KALDI`;}
+    else if(p<=30){warn.classList.add('show');wTxt.textContent=`DÜŞÜK PİL — ${fmt(state.remainS)} KALDI`;}
+    else warn.classList.remove('show');
+  }
+
+  // Ses kontrolü
+  checkSoundAlert(p);
+}
+
 // ════════════════════════════════════════
 //  BAŞLAT
 // ════════════════════════════════════════
 tick(); setInterval(tick,1000);
 initWakeLock();
+loadPhoto();
 updateUI();
+renderTripHistory();
+lastAlertPct=pct100();
 // Sayfa açılışında buluttan çek
 pullState();
 </script>
