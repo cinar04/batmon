@@ -1,7 +1,7 @@
 import { getStore } from "@netlify/blobs";
 
 const STORE_NAME = "batmon";
-const KEY        = "nuna-state";
+const KEY        = "nuna";
 
 export default async (req, context) => {
   const headers = {
