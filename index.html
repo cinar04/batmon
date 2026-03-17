@@ -104,6 +104,8 @@
   .btn-primary:hover{box-shadow:0 0 20px var(--glow);}
   .btn-primary:disabled{opacity:.4;cursor:not-allowed;}
   .btn-danger{background:transparent;border-color:var(--red);color:var(--red);}
+  .btn-clear-log{background:transparent;border:1px solid var(--border2);color:var(--text3);padding:4px 10px;font-family:'Barlow Condensed',sans-serif;font-size:11px;letter-spacing:2px;text-transform:uppercase;cursor:pointer;transition:all .2s;}
+  .btn-clear-log:hover{border-color:var(--red);color:var(--red);}
   .btn-danger:hover{background:var(--red);color:#fff;}
 
   /* ── LOG ── */
@@ -367,7 +369,10 @@
     </div>
 
     <div class="panel" style="flex:1;">
-      <div class="panel-label">// kullanım geçmişi</div>
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;">
+        <div class="panel-label" style="margin-bottom:0;">// kullanım geçmişi</div>
+        <button class="btn-clear-log" onclick="clearLog()">🗑 GEÇMİŞİ SİL</button>
+      </div>
       <div class="log-list" id="logList">
         <div class="log-empty">// HENÜZ KAYIT YOK</div>
       </div>
@@ -499,7 +504,14 @@
 //  SABİTLER
 // ════════════════════════════════════════
 const MAX_S       = 29 * 60;   // 1740 sn kullanılabilir
-const USAGE_RATIO = 70 / 60;   // 1dk = 70sn düşüş
+// Formül: costS = girilen_dk*60 + ((girilen_dk*60)/30)*10
+// Örnek: 1dk → 60 + (60/30)*10 = 60+20 = 80sn (1dk 20sn)
+// Örnek: 2dk → 120 + (120/30)*10 = 120+40 = 160sn (2dk 40sn)
+function calcCost(mins){
+  const usageSecs = mins * 60;
+  const extraSecs = (usageSecs / 30) * 10;
+  return Math.round(usageSecs + extraSecs);
+}
 const SYNC_URL    = '/api/sync';
 
 // ════════════════════════════════════════
@@ -595,7 +607,7 @@ function addUsage(){
   inp.classList.remove('error');
   if(isNaN(mins)||mins<=0){ inp.classList.add('error'); showToast('HATA: Geçerli dakika girin',true); return; }
   if(state.remainS<=0){ showToast('⚠ PİL BOŞ — Önce şarj edin',true); return; }
-  const costS   = Math.round(mins * USAGE_RATIO);
+  const costS   = calcCost(mins);
   const beforeS = state.remainS;
   if(costS > state.remainS){
     state.log.push({type:'warn',action:'PİL YETERSİZ',detail:`${mins}dk istek · maliyet ${fmtCost(costS)} · kalan ${fmt(beforeS)}`,time:now()});
@@ -622,6 +634,13 @@ function chargeDevice(){
   state.log.push({type:'charge',action:'PİL ŞARJ EDİLDİ',detail:`→ ${fmt(MAX_S)}`,time:now()});
   save(); updateUI();
   showToast('⚡ PİL TAMAMEN ŞARJ EDİLDİ');
+}
+
+function clearLog(){
+  if(!confirm('Tüm geçmiş silinecek. Emin misin?')) return;
+  state.log = [];
+  save(); renderLog();
+  showToast('🗑 Geçmiş silindi');
 }
 
 // ════════════════════════════════════════
@@ -865,7 +884,7 @@ function now(){ return new Date().toLocaleTimeString('tr-TR'); }
 document.getElementById('useInput').addEventListener('input',function(){
   const v=parseFloat(this.value),hint=document.getElementById('costHint');
   if(!isNaN(v)&&v>0){
-    const c=Math.round(v*USAGE_RATIO),ok=c<=state.remainS;
+    const c=calcCost(v),ok=c<=state.remainS;
     hint.style.color=ok?'var(--text3)':'var(--red)';
     hint.textContent=`→ ${v}dk = ${fmtCost(c)} pil düşer${ok?'':' ⚠ YETERSİZ!'}`;
   }else{hint.style.color='var(--text3)';hint.textContent='— dakika giriniz';}
