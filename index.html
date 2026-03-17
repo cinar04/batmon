@@ -1,0 +1,909 @@
+<!DOCTYPE html>
+<html lang="tr" data-theme="dark">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>OPEL NUNA WARRIANT — BATMON</title>
+<link rel="manifest" href="manifest.json">
+<link rel="icon" type="image/svg+xml" href="logo.svg">
+<link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=Barlow+Condensed:wght@300;400;600;700;900&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css"/>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
+<style>
+  :root[data-theme="dark"]{
+    --bg:#0a0c0f;--bg2:#10141a;--bg3:#161c25;
+    --border:#1e2a38;--border2:#2a3a50;
+    --text:#c8d8e8;--text2:#6a8aaa;--text3:#3a5070;
+    --accent:#00e5ff;--green:#00ff88;--yellow:#ffcc00;
+    --red:#ff3355;--orange:#ff8800;
+    --glow:rgba(0,229,255,.15);--red-glow:rgba(255,51,85,.2);
+  }
+  :root[data-theme="light"]{
+    --bg:#eef2f7;--bg2:#fff;--bg3:#f0f4f9;
+    --border:#d0dcea;--border2:#b0c4d8;
+    --text:#1a2a3a;--text2:#4a6a8a;--text3:#8aaac8;
+    --accent:#0077aa;--green:#00aa55;--yellow:#cc9900;
+    --red:#cc1133;--orange:#cc6600;
+    --glow:rgba(0,119,170,.12);--red-glow:rgba(204,17,51,.15);
+  }
+  *{margin:0;padding:0;box-sizing:border-box;}
+  body{background:var(--bg);color:var(--text);font-family:'Barlow Condensed',sans-serif;min-height:100vh;transition:background .3s,color .3s;}
+
+  /* ── HEADER ── */
+  .header{display:flex;justify-content:space-between;align-items:center;padding:14px 24px;border-bottom:1px solid var(--border);background:var(--bg2);position:sticky;top:0;z-index:10;}
+  .header-left{display:flex;align-items:center;gap:12px;}
+  .logo-wrap{width:38px;height:38px;border:2px solid var(--accent);display:flex;align-items:center;justify-content:center;box-shadow:0 0 14px var(--glow);flex-shrink:0;}
+  .header-title{font-size:17px;font-weight:900;letter-spacing:4px;text-transform:uppercase;color:var(--accent);line-height:1;}
+  .header-sub{font-family:'Share Tech Mono',monospace;font-size:10px;color:var(--text3);letter-spacing:2px;margin-top:3px;}
+  .header-right{display:flex;align-items:center;gap:12px;}
+  .live-badge{display:flex;align-items:center;gap:7px;font-family:'Share Tech Mono',monospace;font-size:11px;color:var(--text2);letter-spacing:1px;}
+  .live-dot{width:8px;height:8px;border-radius:50%;background:var(--green);box-shadow:0 0 8px var(--green);animation:blink 2s infinite;}
+  @keyframes blink{0%,100%{opacity:1}50%{opacity:.25}}
+  #clock{font-family:'Share Tech Mono',monospace;font-size:12px;color:var(--text2);}
+  .hdr-btn{background:var(--bg3);border:1px solid var(--border2);color:var(--text2);padding:6px 11px;font-family:'Barlow Condensed',sans-serif;font-size:12px;letter-spacing:2px;text-transform:uppercase;cursor:pointer;transition:all .2s;}
+  .hdr-btn:hover{border-color:var(--accent);color:var(--accent);}
+  .kiosk-btn{border-color:var(--accent);color:var(--accent);background:rgba(0,229,255,.07);}
+  .sync-badge{font-family:"Share Tech Mono",monospace;font-size:11px;letter-spacing:1px;min-width:120px;}
+  .kiosk-btn:hover{background:var(--accent);color:var(--bg);}
+
+  /* ── MAIN LAYOUT ── */
+  .main{padding:20px 24px;display:grid;grid-template-columns:1fr 310px;gap:18px;}
+
+  /* ── PANEL ── */
+  .panel{background:var(--bg2);border:1px solid var(--border);padding:20px;position:relative;}
+  .panel::before{content:'';position:absolute;top:0;left:0;width:3px;height:100%;background:var(--accent);box-shadow:0 0 10px var(--glow);}
+  .panel-label{font-family:'Share Tech Mono',monospace;font-size:10px;letter-spacing:4px;text-transform:uppercase;color:var(--text3);margin-bottom:16px;}
+
+  /* ── WARN BANNER ── */
+  .warn-banner{display:none;border:1px solid var(--red);background:var(--red-glow);padding:10px 16px;margin-bottom:16px;font-family:'Share Tech Mono',monospace;font-size:11px;letter-spacing:3px;text-transform:uppercase;color:var(--red);animation:flashBorder 1s infinite;}
+  .warn-banner.show{display:flex;align-items:center;gap:10px;}
+  @keyframes flashBorder{0%,100%{border-color:var(--red)}50%{border-color:transparent}}
+
+  /* ── DEVICE ── */
+  .device-top{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:20px;}
+  .device-name{font-size:24px;font-weight:900;letter-spacing:2px;text-transform:uppercase;line-height:1.15;}
+  .device-meta{font-family:'Share Tech Mono',monospace;font-size:10px;color:var(--text3);margin-top:5px;letter-spacing:1px;}
+  .status-badge{display:flex;align-items:center;gap:7px;background:var(--bg3);border:1px solid var(--border2);padding:7px 11px;font-size:11px;letter-spacing:3px;text-transform:uppercase;white-space:nowrap;}
+  .status-badge.ok{color:var(--green);border-color:var(--green);}
+  .status-badge.warn{color:var(--orange);border-color:var(--orange);}
+  .status-badge.crit{color:var(--red);border-color:var(--red);animation:flashBorder 1s infinite;}
+
+  /* ── BATTERY ── */
+  .batt-wrap{display:flex;align-items:center;gap:10px;margin-bottom:14px;}
+  .batt-body{flex:1;height:50px;border:2px solid var(--border2);background:var(--bg3);position:relative;overflow:hidden;}
+  .batt-fill{height:100%;position:relative;transition:width .9s cubic-bezier(.4,0,.2,1),background-color .5s;}
+  .batt-fill::after{content:'';position:absolute;top:0;right:0;bottom:0;width:3px;background:rgba(255,255,255,.22);}
+  .batt-fill::before{content:'';position:absolute;inset:0;background:repeating-linear-gradient(-45deg,transparent,transparent 8px,rgba(0,0,0,.12) 8px,rgba(0,0,0,.12) 16px);}
+  .batt-tip{width:8px;height:26px;background:var(--border2);flex-shrink:0;}
+  .batt-pct{font-family:'Share Tech Mono',monospace;font-size:50px;font-weight:900;line-height:1;min-width:105px;text-align:right;transition:color .5s;}
+  .batt-rows{display:flex;flex-direction:column;gap:7px;}
+  .batt-row{display:flex;justify-content:space-between;align-items:center;}
+  .batt-row-label{font-size:11px;letter-spacing:3px;text-transform:uppercase;color:var(--text3);}
+  .batt-row-val{font-family:'Share Tech Mono',monospace;font-size:19px;}
+  .batt-row-val.muted{font-size:13px;color:var(--text3);}
+  .decay-info{display:flex;align-items:center;gap:10px;background:var(--bg3);border:1px solid var(--border2);padding:9px 13px;margin-top:14px;font-family:'Share Tech Mono',monospace;font-size:11px;color:var(--text2);}
+
+  /* ── METRICS ── */
+  .metrics{display:grid;grid-template-columns:repeat(3,1fr);gap:1px;background:var(--border);border:1px solid var(--border);}
+  .metric{background:var(--bg2);padding:16px 12px;}
+  .metric-label{font-size:9px;letter-spacing:3px;text-transform:uppercase;color:var(--text3);margin-bottom:6px;font-family:'Share Tech Mono',monospace;}
+  .metric-val{font-size:22px;font-weight:700;}
+  .metric-val small{font-size:11px;color:var(--text3);font-weight:400;}
+
+  /* ── FORM ── */
+  .use-form{display:flex;flex-direction:column;gap:13px;}
+  .f-row{display:flex;flex-direction:column;gap:6px;}
+  .f-label{font-family:'Share Tech Mono',monospace;font-size:10px;letter-spacing:3px;text-transform:uppercase;color:var(--text3);}
+  .f-input{background:var(--bg3);border:1px solid var(--border2);color:var(--text);padding:10px 13px;font-family:'Share Tech Mono',monospace;font-size:16px;outline:none;width:100%;transition:border-color .2s;}
+  .f-input:focus{border-color:var(--accent);box-shadow:0 0 0 1px var(--accent);}
+  .f-input.error{border-color:var(--red);box-shadow:0 0 0 1px var(--red);}
+  .f-hint{font-family:'Share Tech Mono',monospace;font-size:10px;color:var(--text3);}
+  .btn{padding:12px 16px;border:1px solid;cursor:pointer;font-family:'Barlow Condensed',sans-serif;font-size:13px;font-weight:700;letter-spacing:3px;text-transform:uppercase;transition:all .2s;width:100%;}
+  .btn-primary{background:var(--accent);border-color:var(--accent);color:var(--bg);}
+  .btn-primary:hover{box-shadow:0 0 20px var(--glow);}
+  .btn-primary:disabled{opacity:.4;cursor:not-allowed;}
+  .btn-danger{background:transparent;border-color:var(--red);color:var(--red);}
+  .btn-danger:hover{background:var(--red);color:#fff;}
+
+  /* ── LOG ── */
+  .log-list{display:flex;flex-direction:column;gap:2px;max-height:300px;overflow-y:auto;}
+  .log-list::-webkit-scrollbar{width:3px;}
+  .log-list::-webkit-scrollbar-track{background:var(--bg3);}
+  .log-list::-webkit-scrollbar-thumb{background:var(--border2);}
+  .log-item{display:flex;justify-content:space-between;align-items:center;padding:8px 11px;background:var(--bg3);border-left:3px solid transparent;font-size:11px;transition:background .15s;}
+  .log-item:hover{background:var(--border);}
+  .log-item.use{border-left-color:var(--accent);}
+  .log-item.charge{border-left-color:var(--green);}
+  .log-item.auto{border-left-color:var(--text3);}
+  .log-item.warn{border-left-color:var(--red);}
+  .log-item.trip{border-left-color:var(--yellow);}
+  .log-action{font-weight:700;letter-spacing:1px;text-transform:uppercase;font-size:11px;}
+  .log-detail{font-family:'Share Tech Mono',monospace;font-size:10px;color:var(--text3);margin-top:2px;}
+  .log-time{font-family:'Share Tech Mono',monospace;font-size:10px;color:var(--text3);flex-shrink:0;margin-left:8px;}
+  .log-empty{text-align:center;padding:32px 0;color:var(--text3);font-family:'Share Tech Mono',monospace;font-size:11px;letter-spacing:2px;}
+
+  /* ── TOAST ── */
+  .toast{position:fixed;bottom:22px;right:22px;background:var(--bg2);border:1px solid var(--accent);padding:11px 18px;font-family:'Share Tech Mono',monospace;font-size:11px;letter-spacing:2px;text-transform:uppercase;color:var(--accent);box-shadow:0 0 20px var(--glow);transform:translateY(70px);opacity:0;transition:all .3s;pointer-events:none;z-index:9999;max-width:340px;}
+  .toast.show{transform:translateY(0);opacity:1;}
+  .toast.err{border-color:var(--red);color:var(--red);box-shadow:0 0 20px var(--red-glow);}
+
+  /* ══════════════════════════════════════
+     KİOSK MOD — TAM EKRAN GPS
+  ══════════════════════════════════════ */
+  #kioskOverlay{
+    display:none;position:fixed;inset:0;z-index:1000;
+    background:#000;flex-direction:column;
+  }
+  #kioskOverlay.active{display:flex;}
+
+  /* Kiosk üst bar — pil */
+  .kiosk-topbar{
+    display:flex;align-items:center;justify-content:space-between;
+    padding:10px 20px;background:rgba(10,12,15,.95);
+    border-bottom:2px solid var(--accent);
+    flex-shrink:0;gap:16px;
+    box-shadow:0 0 20px rgba(0,229,255,.1);
+  }
+  .kiosk-device{font-size:13px;font-weight:900;letter-spacing:3px;text-transform:uppercase;color:var(--accent);}
+  .kiosk-batt-mini{display:flex;align-items:center;gap:10px;}
+  .kiosk-batt-bar-wrap{width:120px;height:18px;border:1.5px solid var(--border2);background:var(--bg3);position:relative;overflow:hidden;}
+  .kiosk-batt-bar-fill{height:100%;transition:width .8s,background-color .5s;}
+  .kiosk-batt-pct{font-family:'Share Tech Mono',monospace;font-size:18px;font-weight:900;min-width:52px;}
+  .kiosk-remain{font-family:'Share Tech Mono',monospace;font-size:13px;color:var(--text2);}
+  .kiosk-paused{font-family:'Share Tech Mono',monospace;font-size:10px;color:var(--yellow);letter-spacing:2px;background:rgba(255,204,0,.1);padding:3px 8px;border:1px solid var(--yellow);}
+
+  /* Harita */
+  #kioskMap{flex:1;width:100%;}
+
+  /* Kiosk alt bar — GPS bilgileri */
+  .kiosk-botbar{
+    display:flex;align-items:stretch;
+    background:rgba(10,12,15,.97);
+    border-top:2px solid var(--accent);
+    flex-shrink:0;
+  }
+  .kiosk-stat{
+    flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;
+    padding:10px 8px;border-right:1px solid var(--border);
+  }
+  .kiosk-stat:last-child{border-right:none;}
+  .kiosk-stat-label{font-family:'Share Tech Mono',monospace;font-size:9px;letter-spacing:3px;text-transform:uppercase;color:var(--text3);margin-bottom:4px;}
+  .kiosk-stat-val{font-family:'Share Tech Mono',monospace;font-size:18px;font-weight:900;color:var(--accent);line-height:1;}
+  .kiosk-stat-val.green{color:var(--green);}
+  .kiosk-stat-val.yellow{color:var(--yellow);}
+  .kiosk-stat-val.small{font-size:12px;}
+
+  /* Çıkış butonu */
+  .kiosk-exit-btn{
+    padding:0 20px;display:flex;align-items:center;justify-content:center;
+    background:rgba(255,51,85,.1);border-left:1px solid var(--red);
+    color:var(--red);font-family:'Barlow Condensed',sans-serif;
+    font-size:13px;letter-spacing:3px;text-transform:uppercase;
+    cursor:pointer;transition:background .2s;min-width:90px;
+  }
+  .kiosk-exit-btn:hover{background:var(--red);color:#fff;}
+
+  /* Kiosk özet modal */
+  #tripSummary{
+    display:none;position:fixed;inset:0;z-index:2000;
+    background:rgba(0,0,0,.85);align-items:center;justify-content:center;
+  }
+  #tripSummary.active{display:flex;}
+  .trip-modal{
+    background:var(--bg2);border:1px solid var(--accent);
+    padding:32px;max-width:480px;width:90%;position:relative;
+    box-shadow:0 0 40px var(--glow);
+  }
+  .trip-modal::before{content:'';position:absolute;top:0;left:0;width:3px;height:100%;background:var(--accent);}
+  .trip-title{font-size:22px;font-weight:900;letter-spacing:4px;text-transform:uppercase;color:var(--accent);margin-bottom:20px;}
+  .trip-rows{display:flex;flex-direction:column;gap:12px;margin-bottom:24px;}
+  .trip-row{display:flex;justify-content:space-between;align-items:center;padding:10px 14px;background:var(--bg3);border-left:3px solid var(--accent);}
+  .trip-row-label{font-size:11px;letter-spacing:3px;text-transform:uppercase;color:var(--text3);}
+  .trip-row-val{font-family:'Share Tech Mono',monospace;font-size:16px;color:var(--text);}
+  .trip-close{background:var(--accent);border:none;color:var(--bg);padding:12px 24px;font-family:'Barlow Condensed',sans-serif;font-size:14px;font-weight:700;letter-spacing:3px;text-transform:uppercase;cursor:pointer;width:100%;}
+  .trip-close:hover{box-shadow:0 0 20px var(--glow);}
+
+  /* GPS accuracy ring on map */
+  .leaflet-container{font-family:'Share Tech Mono',monospace!important;}
+
+
+  /* ── SYNC INDICATOR ── */
+  .sync-indicator {
+    font-family:'Share Tech Mono',monospace; font-size:10px;
+    letter-spacing:2px; padding:5px 10px;
+    border:1px solid var(--border2); color:var(--text3);
+    cursor:default; transition:all .3s;
+  }
+  .sync-indicator.synced  { color:var(--green);  border-color:var(--green); }
+  .sync-indicator.syncing { color:var(--yellow); border-color:var(--yellow); }
+  .sync-indicator.error   { color:var(--red);    border-color:var(--red); }
+
+  /* ── SETUP MODAL ── */
+  #setupModal {
+    display:none; position:fixed; inset:0; z-index:3000;
+    background:rgba(0,0,0,.85); align-items:center; justify-content:center;
+  }
+  #setupModal.active { display:flex; }
+  .setup-box {
+    background:var(--bg2); border:1px solid var(--accent);
+    padding:32px; max-width:500px; width:92%; position:relative;
+    box-shadow:0 0 40px var(--glow);
+  }
+  .setup-box::before{content:'';position:absolute;top:0;left:0;width:3px;height:100%;background:var(--accent);}
+  .setup-title { font-size:20px; font-weight:900; letter-spacing:4px; color:var(--accent); margin-bottom:8px; text-transform:uppercase; }
+  .setup-desc  { font-family:'Share Tech Mono',monospace; font-size:11px; color:var(--text3); margin-bottom:24px; line-height:1.7; }
+  .setup-steps { margin-bottom:20px; display:flex; flex-direction:column; gap:14px; }
+  .setup-step  { display:flex; flex-direction:column; gap:6px; }
+  .setup-step-label { font-size:10px; letter-spacing:3px; text-transform:uppercase; color:var(--text3); font-family:'Share Tech Mono',monospace; }
+  .setup-input {
+    background:var(--bg3); border:1px solid var(--border2); color:var(--text);
+    padding:10px 13px; font-family:'Share Tech Mono',monospace; font-size:13px;
+    outline:none; width:100%; transition:border-color .2s;
+  }
+  .setup-input:focus { border-color:var(--accent); }
+  .setup-btns { display:flex; gap:10px; margin-top:4px; }
+  .setup-save { background:var(--accent); border:none; color:var(--bg); padding:12px; font-family:'Barlow Condensed',sans-serif; font-size:13px; font-weight:700; letter-spacing:3px; text-transform:uppercase; cursor:pointer; flex:1; }
+  .setup-save:hover { box-shadow:0 0 20px var(--glow); }
+  .setup-skip { background:transparent; border:1px solid var(--border2); color:var(--text3); padding:12px; font-family:'Barlow Condensed',sans-serif; font-size:13px; font-weight:700; letter-spacing:3px; text-transform:uppercase; cursor:pointer; }
+  .setup-skip:hover { border-color:var(--text2); color:var(--text2); }
+  .setup-hint { font-family:'Share Tech Mono',monospace; font-size:10px; color:var(--text3); margin-top:14px; line-height:1.6; }
+
+  @media(max-width:860px){.main{grid-template-columns:1fr;}}
+</style>
+</head>
+<body>
+
+<!-- ══ HEADER ══ -->
+<header class="header">
+  <div class="header-left">
+    <div class="logo-wrap">
+      <svg viewBox="0 0 100 100" width="34" height="34" xmlns="http://www.w3.org/2000/svg">
+        <defs>
+          <linearGradient id="lg1" x1="0%" y1="0%" x2="0%" y2="100%">
+            <stop offset="0%" stop-color="#00e5ff"/><stop offset="100%" stop-color="#0077aa"/>
+          </linearGradient>
+          <linearGradient id="lg2" x1="0%" y1="0%" x2="100%" y2="0%">
+            <stop offset="0%" stop-color="#00ff88" stop-opacity=".9"/><stop offset="100%" stop-color="#00cc66" stop-opacity=".5"/>
+          </linearGradient>
+          <filter id="gf"><feGaussianBlur stdDeviation="1.5" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
+        </defs>
+        <rect x="4" y="28" width="80" height="44" rx="4" fill="none" stroke="#1e2a38" stroke-width="3"/>
+        <rect x="84" y="38" width="10" height="24" rx="2" fill="#1e2a38"/>
+        <rect x="8" y="32" width="52" height="36" rx="2" fill="url(#lg2)" opacity=".9"/>
+        <polygon points="56,14 41,54 52,54 38,86 70,46 58,46 68,14" fill="url(#lg1)" filter="url(#gf)"/>
+      </svg>
+    </div>
+    <div>
+      <div class="header-title">BATMON</div>
+      <div class="header-sub">// OPEL NUNA WARRIANT · PİL TAKİP SİSTEMİ</div>
+    </div>
+  </div>
+  <div class="header-right">
+    <div class="live-badge"><div class="live-dot"></div>CANLI</div>
+    <div class="sync-badge" id="syncBadge"><span style="color:var(--text3)">☁ —</span></div>
+    <button class="hdr-btn" onclick="pullState()" title="Buluttan güncelle">↻ SENKRON</button>
+    <div id="clock">--:--:--</div>
+    <button class="hdr-btn" onclick="openSetup()" title="Bulut senkron ayarları">☁ BULUT</button>
+    <button class="hdr-btn kiosk-btn" onclick="enterKiosk()">⊕ TAM EKRAN GPS</button>
+    <div class="sync-indicator" id="syncIndicator" title="Senkronizasyon durumu">⬤ YEREL</div>
+    <button class="hdr-btn" id="themeBtn" onclick="toggleTheme()">☀ TEMA</button>
+  </div>
+</header>
+
+<!-- ══ MAIN ══ -->
+<div class="main">
+  <div style="display:flex;flex-direction:column;gap:16px;">
+
+    <div class="warn-banner" id="warnBanner">
+      <span style="font-size:15px;">⚠</span>
+      <span id="warnText">KRİTİK: PİL SEVİYESİ DÜŞÜK</span>
+    </div>
+
+    <div class="panel">
+      <div class="panel-label">// cihaz · pil durumu</div>
+      <div class="device-top">
+        <div>
+          <div class="device-name">OPEL NUNA<br>WARRIANT</div>
+          <div class="device-meta">UID: ONW-2024-X · KAP: 30:00 · KUL: 29:00</div>
+        </div>
+        <div class="status-badge ok" id="statusBadge"><span>●</span> <span id="statusText">AKTİF</span></div>
+      </div>
+      <div class="batt-wrap">
+        <div class="batt-body">
+          <div class="batt-fill" id="battFill" style="width:100%;background-color:rgba(0,255,136,.28);"></div>
+        </div>
+        <div class="batt-tip"></div>
+        <div class="batt-pct" id="battPct" style="color:var(--green);">100%</div>
+      </div>
+      <div class="batt-rows">
+        <div class="batt-row">
+          <span class="batt-row-label">KALAN SÜRE</span>
+          <span class="batt-row-val" id="remainTime">29:00</span>
+        </div>
+        <div class="batt-row">
+          <span class="batt-row-label">TOPLAM KAPASİTE</span>
+          <span class="batt-row-val muted">30:00 dk</span>
+        </div>
+      </div>
+      <div class="decay-info">
+        <span>⚡</span>
+        <span>1dk kullanım = 1dk 10sn düşüş &nbsp;·&nbsp; 2dk = 2dk 20sn &nbsp;·&nbsp; Bekleme modunda düşüş yok</span>
+      </div>
+    </div>
+
+    <div class="metrics">
+      <div class="metric">
+        <div class="metric-label">Toplam Kullanım</div>
+        <div class="metric-val" id="mTotalUsed">0<small> sn</small></div>
+      </div>
+      <div class="metric">
+        <div class="metric-label">Oturum Sayısı</div>
+        <div class="metric-val" id="mSessions">0<small> adet</small></div>
+      </div>
+      <div class="metric">
+        <div class="metric-label">Şarj Sayısı</div>
+        <div class="metric-val" id="mCharges">0<small> kez</small></div>
+      </div>
+    </div>
+  </div>
+
+  <div style="display:flex;flex-direction:column;gap:16px;">
+    <div class="panel">
+      <div class="panel-label">// kullanım kaydet</div>
+      <div class="use-form">
+        <div class="f-row">
+          <label class="f-label">Kullanım Süresi (dakika)</label>
+          <input class="f-input" type="number" id="useInput" min="1" placeholder="örn: 5"/>
+          <div class="f-hint" id="costHint">— dakika giriniz</div>
+        </div>
+        <div class="f-row">
+          <label class="f-label">Açıklama (opsiyonel)</label>
+          <input class="f-input" type="text" id="descInput" placeholder="örn: test sürüşü" style="font-family:'Barlow Condensed',sans-serif;font-size:14px;"/>
+        </div>
+        <button class="btn btn-primary" id="addBtn" onclick="addUsage()">▶ KULLANIMI EKLE</button>
+        <button class="btn btn-danger" onclick="chargeDevice()">⚡ PİLİ ŞARJ ET (SIFIRLA)</button>
+      </div>
+    </div>
+
+    <div class="panel" style="flex:1;">
+      <div class="panel-label">// kullanım geçmişi</div>
+      <div class="log-list" id="logList">
+        <div class="log-empty">// HENÜZ KAYIT YOK</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══ KİOSK OVERLAY ══ -->
+<div id="kioskOverlay">
+
+  <!-- Üst bar: pil -->
+  <div class="kiosk-topbar">
+    <div class="kiosk-device">⚡ OPEL NUNA WARRIANT</div>
+    <div class="kiosk-batt-mini">
+      <div class="kiosk-batt-bar-wrap">
+        <div class="kiosk-batt-bar-fill" id="kBattFill" style="width:100%;background:rgba(0,255,136,.6);"></div>
+      </div>
+      <div class="kiosk-batt-pct" id="kBattPct" style="color:var(--green);">100%</div>
+      <div class="kiosk-remain" id="kRemain">29:00</div>
+    </div>
+    <div class="kiosk-paused">● PİL SAYIMI DURDURULDU</div>
+  </div>
+
+  <!-- Harita -->
+  <div id="kioskMap"></div>
+
+  <!-- Alt bar: GPS istatistikleri -->
+  <div class="kiosk-botbar">
+    <div class="kiosk-stat">
+      <div class="kiosk-stat-label">GİDİLEN MESAFE</div>
+      <div class="kiosk-stat-val green" id="kDist">0.00 km</div>
+    </div>
+    <div class="kiosk-stat">
+      <div class="kiosk-stat-label">GEÇEN SÜRE</div>
+      <div class="kiosk-stat-val yellow" id="kElapsed">00:00</div>
+    </div>
+    <div class="kiosk-stat">
+      <div class="kiosk-stat-label">BAŞLANGIÇ</div>
+      <div class="kiosk-stat-val small" id="kStartPos">— konum bekleniyor</div>
+    </div>
+    <div class="kiosk-stat">
+      <div class="kiosk-stat-label">MEVCUT KONUM</div>
+      <div class="kiosk-stat-val small" id="kCurPos">— —</div>
+    </div>
+    <div class="kiosk-stat">
+      <div class="kiosk-stat-label">HIZ</div>
+      <div class="kiosk-stat-val" id="kSpeed">— km/s</div>
+    </div>
+    <div class="kiosk-exit-btn" onclick="exitKiosk()">✕ ÇIKIŞ</div>
+  </div>
+</div>
+
+<!-- ══ SUPABASE SETUP MODAL ══ -->
+<div id="setupModal">
+  <div class="setup-box">
+    <div class="setup-title">☁ BULUT SENKRON</div>
+    <div class="setup-desc">Pil geçmişini tüm cihazlarda senkronize etmek için<br>Supabase bilgilerini gir. Ücretsiz hesap yeterli.</div>
+    <div class="setup-steps">
+      <div class="setup-step">
+        <label class="setup-step-label">Supabase Project URL</label>
+        <input class="setup-input" id="cfgUrl" placeholder="https://xxxx.supabase.co" />
+      </div>
+      <div class="setup-step">
+        <label class="setup-step-label">Supabase Anon Key</label>
+        <input class="setup-input" id="cfgKey" placeholder="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..." />
+      </div>
+      <div class="setup-step">
+        <label class="setup-step-label">Cihaz Adı (isteğe bağlı)</label>
+        <input class="setup-input" id="cfgDevice" placeholder="örn: Tablet, Telefon..." />
+      </div>
+    </div>
+    <div class="setup-btns">
+      <button class="setup-save" onclick="saveSupabaseConfig()">✓ KAYDET & BAĞLAN</button>
+      <button class="setup-skip" onclick="localStorage.setItem('sb_setup_skipped','1');closeSetup()">ŞIMDILIK GEÇIŞ</button>
+    </div>
+    <div class="setup-hint">
+      supabase.com → New Project → Settings → API<br>
+      Project URL ve anon public key buraya yapıştır.<br>
+      SQL Editor'da aşağıdaki tabloyu oluştur:<br><br>
+      <span style="color:var(--accent)">CREATE TABLE batmon (<br>
+      &nbsp;&nbsp;id text PRIMARY KEY DEFAULT 'nuna',<br>
+      &nbsp;&nbsp;data jsonb,<br>
+      &nbsp;&nbsp;updated_at timestamptz DEFAULT now()<br>
+      );<br>
+      ALTER TABLE batmon ENABLE ROW LEVEL SECURITY;<br>
+      CREATE POLICY "public rw" ON batmon FOR ALL USING (true);</span>
+    </div>
+  </div>
+</div>
+
+<!-- ══ GEZİ ÖZETİ MODAL ══ -->
+<div id="tripSummary">
+  <div class="trip-modal">
+    <div class="trip-title">🗺 GEZİ ÖZETİ</div>
+    <div class="trip-rows">
+      <div class="trip-row">
+        <span class="trip-row-label">Başlangıç Yeri</span>
+        <span class="trip-row-val" id="sumStart">—</span>
+      </div>
+      <div class="trip-row">
+        <span class="trip-row-label">Bitiş Yeri</span>
+        <span class="trip-row-val" id="sumEnd">—</span>
+      </div>
+      <div class="trip-row">
+        <span class="trip-row-label">Gidilen Mesafe</span>
+        <span class="trip-row-val" id="sumDist">—</span>
+      </div>
+      <div class="trip-row">
+        <span class="trip-row-label">Kullanılan Süre</span>
+        <span class="trip-row-val" id="sumDur">—</span>
+      </div>
+      <div class="trip-row">
+        <span class="trip-row-label">Başlangıç Saati</span>
+        <span class="trip-row-val" id="sumStartTime">—</span>
+      </div>
+      <div class="trip-row">
+        <span class="trip-row-label">Bitiş Saati</span>
+        <span class="trip-row-val" id="sumEndTime">—</span>
+      </div>
+    </div>
+    <button class="trip-close" onclick="closeTripSummary()">✓ TAMAM</button>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+// ════════════════════════════════════════
+//  SABİTLER
+// ════════════════════════════════════════
+const MAX_S       = 29 * 60;   // 1740 sn kullanılabilir
+const USAGE_RATIO = 70 / 60;   // 1dk = 70sn düşüş
+const SYNC_URL    = '/api/sync';
+
+// ════════════════════════════════════════
+//  STATE
+// ════════════════════════════════════════
+let state = (()=>{ try{ return JSON.parse(localStorage.getItem('batmon_nuna'))||null; }catch(e){return null;} })() || {
+  remainS:MAX_S, totalUsedS:0, sessions:0, charges:0, log:[]
+};
+if(state.remainS === undefined || state.remainS === null) state.remainS = MAX_S;
+
+// ════════════════════════════════════════
+//  NETLIFY BLOBS SENKRON
+// ════════════════════════════════════════
+let syncStatus = 'idle'; // idle | syncing | ok | error
+let syncTimer  = null;
+
+function setSyncStatus(s, msg=''){
+  syncStatus = s;
+  const el = document.getElementById('syncBadge');
+  if(!el) return;
+  const map = {
+    idle:    ['☁','var(--text3)','—'],
+    syncing: ['↻','var(--yellow)','SENKRON...'],
+    ok:      ['✓','var(--green)', msg||'SENKRON'],
+    error:   ['✕','var(--red)',   msg||'HATA'],
+  };
+  const [icon, color, label] = map[s] || map.idle;
+  el.innerHTML = `<span style="color:${color}">${icon} ${label}</span>`;
+}
+
+async function pushState(){
+  setSyncStatus('syncing');
+  try {
+    const res = await fetch(SYNC_URL, {
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body: JSON.stringify({ state })
+    });
+    const json = await res.json();
+    if(json.ok){
+      const t = new Date(json.updatedAt).toLocaleTimeString('tr-TR');
+      setSyncStatus('ok', `KAYDEDILDI ${t}`);
+    } else {
+      setSyncStatus('error', json.error||'Hata');
+    }
+  } catch(e){
+    setSyncStatus('error', 'Bağlantı yok');
+  }
+}
+
+async function pullState(){
+  setSyncStatus('syncing');
+  try {
+    const res = await fetch(SYNC_URL);
+    const json = await res.json();
+    if(json.ok && json.state){
+      const remote = json.state;
+      // Uzaktaki veri daha yeni mi kontrol et
+      const localTime  = state.updatedAt  ? new Date(state.updatedAt).getTime()  : 0;
+      const remoteTime = remote.updatedAt ? new Date(remote.updatedAt).getTime() : 0;
+      if(remoteTime > localTime){
+        state = remote;
+        localStorage.setItem('batmon_nuna', JSON.stringify(state));
+        updateUI();
+        const t = new Date(remote.updatedAt).toLocaleTimeString('tr-TR');
+        setSyncStatus('ok', `ÇEKILDI ${t}`);
+        showToast('☁ Buluttan güncellendi');
+      } else {
+        setSyncStatus('ok', 'GÜNCEL');
+      }
+    } else {
+      // Uzakta veri yok, mevcut state'i yükle
+      setSyncStatus('ok','YEREl');
+    }
+  } catch(e){
+    setSyncStatus('error','Bağlantı yok');
+  }
+}
+
+function save(){
+  localStorage.setItem('batmon_nuna', JSON.stringify(state));
+  clearTimeout(syncTimer);
+  syncTimer = setTimeout(pushState, 600); // debounce 600ms
+}
+
+// ════════════════════════════════════════
+//  KULLANIM EKLEME
+// ════════════════════════════════════════
+function addUsage(){
+  const inp  = document.getElementById('useInput');
+  const desc = document.getElementById('descInput').value.trim()||'Adsız oturum';
+  const mins = parseFloat(inp.value);
+  inp.classList.remove('error');
+  if(isNaN(mins)||mins<=0){ inp.classList.add('error'); showToast('HATA: Geçerli dakika girin',true); return; }
+  if(state.remainS<=0){ showToast('⚠ PİL BOŞ — Önce şarj edin',true); return; }
+  const costS   = Math.round(mins * USAGE_RATIO);
+  const beforeS = state.remainS;
+  if(costS > state.remainS){
+    state.log.push({type:'warn',action:'PİL YETERSİZ',detail:`${mins}dk istek · maliyet ${fmtCost(costS)} · kalan ${fmt(beforeS)}`,time:now()});
+    inp.classList.add('error');
+    save(); renderLog();
+    showToast(`⚠ PİL YETMEZ! ${fmtCost(costS)} gerekli, ${fmt(state.remainS)} kaldı`,true);
+    return;
+  }
+  state.remainS    -= costS;
+  state.totalUsedS += costS;
+  state.sessions++;
+  state.log.push({type:'use',action:`KULLANIM · ${mins}dk`,detail:`${desc} · −${fmtCost(costS)} · ${fmt(beforeS)}→${fmt(state.remainS)} · %${pct100()}`,time:now()});
+  inp.value=''; document.getElementById('descInput').value='';
+  document.getElementById('costHint').textContent='— dakika giriniz';
+  save(); updateUI();
+  if(state.remainS===0) showToast('⚠ PİL TAMAMEN BOŞ',true);
+  else showToast(`✓ ${mins}dk eklendi · ${fmtCost(costS)} düşüldü`);
+}
+
+function chargeDevice(){
+  if(state.remainS>=MAX_S){ showToast('Pil zaten tam dolu',false); return; }
+  state.remainS = MAX_S;
+  state.charges++;
+  state.log.push({type:'charge',action:'PİL ŞARJ EDİLDİ',detail:`→ ${fmt(MAX_S)}`,time:now()});
+  save(); updateUI();
+  showToast('⚡ PİL TAMAMEN ŞARJ EDİLDİ');
+}
+
+// ════════════════════════════════════════
+//  UI GÜNCELLE
+// ════════════════════════════════════════
+function updateUI(){
+  const p=pct100();
+  let color,bg;
+  if(p>60){color='var(--green)';bg='rgba(0,255,136,.28)';}
+  else if(p>30){color='var(--yellow)';bg='rgba(255,204,0,.28)';}
+  else if(p>15){color='var(--orange)';bg='rgba(255,136,0,.28)';}
+  else{color='var(--red)';bg='rgba(255,51,85,.28)';}
+
+  const fill=document.getElementById('battFill');
+  fill.style.width=p+'%'; fill.style.backgroundColor=bg;
+  const pEl=document.getElementById('battPct');
+  pEl.style.color=color; pEl.textContent=p+'%';
+  document.getElementById('remainTime').textContent=fmt(state.remainS);
+
+  const badge=document.getElementById('statusBadge'), sTxt=document.getElementById('statusText');
+  badge.className='status-badge';
+  if(p===0){badge.classList.add('crit');sTxt.textContent='PİL BOŞ';}
+  else if(p<=15){badge.classList.add('crit');sTxt.textContent='KRİTİK';}
+  else if(p<=30){badge.classList.add('warn');sTxt.textContent='DÜŞÜK';}
+  else{badge.classList.add('ok');sTxt.textContent='AKTİF';}
+
+  const warn=document.getElementById('warnBanner'), wTxt=document.getElementById('warnText');
+  if(p===0){warn.classList.add('show');wTxt.textContent='PİL TAMAMEN BOŞ — ŞARJ OLMADAN KULLANILAMAZ';warn.style.borderColor='var(--red)';}
+  else if(p<=15){warn.classList.add('show');wTxt.textContent=`KRİTİK — YALNIZCA ${fmt(state.remainS)} KALDI`;warn.style.borderColor='';}
+  else if(p<=30){warn.classList.add('show');wTxt.textContent=`DÜŞÜK PİL — ${fmt(state.remainS)} KALDI`;warn.style.borderColor='var(--orange)';}
+  else warn.classList.remove('show');
+
+  document.getElementById('addBtn').disabled=(state.remainS<=0);
+
+  const tu=state.totalUsedS;
+  document.getElementById('mTotalUsed').innerHTML=`${Math.floor(tu/60)}<small>dk</small> ${tu%60}<small>sn</small>`;
+  document.getElementById('mSessions').innerHTML=state.sessions+'<small> adet</small>';
+  document.getElementById('mCharges').innerHTML=state.charges+'<small> kez</small>';
+
+  updateKioskBatt();
+  renderLog();
+}
+
+function updateKioskBatt(){
+  const p=pct100();
+  let c,bg;
+  if(p>60){c='var(--green)';bg='rgba(0,255,136,.6)';}
+  else if(p>30){c='var(--yellow)';bg='rgba(255,204,0,.6)';}
+  else if(p>15){c='var(--orange)';bg='rgba(255,136,0,.6)';}
+  else{c='var(--red)';bg='rgba(255,51,85,.6)';}
+  const kf=document.getElementById('kBattFill');
+  if(!kf) return;
+  kf.style.width=p+'%'; kf.style.backgroundColor=bg;
+  document.getElementById('kBattPct').style.color=c;
+  document.getElementById('kBattPct').textContent=p+'%';
+  document.getElementById('kRemain').textContent=fmt(state.remainS);
+}
+
+function renderLog(){
+  const el=document.getElementById('logList');
+  if(!state.log||!state.log.length){el.innerHTML='<div class="log-empty">// HENÜZ KAYIT YOK</div>';return;}
+  const cm={use:'var(--accent)',charge:'var(--green)',warn:'var(--red)',auto:'var(--text3)',trip:'var(--yellow)'};
+  el.innerHTML=[...state.log].reverse().slice(0,80).map(e=>`
+    <div class="log-item ${e.type}">
+      <div>
+        <div class="log-action" style="color:${cm[e.type]||'var(--text2)'}">${e.action}</div>
+        <div class="log-detail">${e.detail}</div>
+      </div>
+      <div class="log-time">${e.time}</div>
+    </div>`).join('');
+}
+
+// ════════════════════════════════════════
+//  KİOSK / GPS MODU
+// ════════════════════════════════════════
+let kioskActive    = false;
+let kioskMap       = null;
+let geoWatchId     = null;
+let tripStartTime  = null;
+let tripStartPos   = null;
+let tripLastPos    = null;
+let tripDistM      = 0;
+let tripElapsedTimer = null;
+let pathLine       = null;
+let pathPoints     = [];
+let startMarker    = null;
+let currentMarker  = null;
+let accuracyCircle = null;
+
+function enterKiosk(){
+  kioskActive = true;
+  document.getElementById('kioskOverlay').classList.add('active');
+  updateKioskBatt();
+  requestWakeLock();
+
+  if(!kioskMap){
+    kioskMap = L.map('kioskMap',{zoomControl:true,attributionControl:false}).setView([41.015137,28.979530],14);
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',{maxZoom:19}).addTo(kioskMap);
+    document.getElementById('kioskMap').style.filter='brightness(0.75) saturate(0.9) hue-rotate(180deg) invert(1)';
+  }
+  setTimeout(()=>{ kioskMap.invalidateSize(); },200);
+
+  tripStartTime=new Date(); tripDistM=0; tripLastPos=null; tripStartPos=null; pathPoints=[];
+  if(pathLine){kioskMap.removeLayer(pathLine);pathLine=null;}
+  if(startMarker){kioskMap.removeLayer(startMarker);startMarker=null;}
+  if(currentMarker){kioskMap.removeLayer(currentMarker);currentMarker=null;}
+  if(accuracyCircle){kioskMap.removeLayer(accuracyCircle);accuracyCircle=null;}
+
+  document.getElementById('kDist').textContent='0.00 km';
+  document.getElementById('kElapsed').textContent='00:00';
+  document.getElementById('kStartPos').textContent='📡 Konum alınıyor...';
+  document.getElementById('kCurPos').textContent='— —';
+  document.getElementById('kSpeed').textContent='— km/s';
+
+  if(tripElapsedTimer) clearInterval(tripElapsedTimer);
+  tripElapsedTimer=setInterval(updateElapsed,1000);
+
+  if(!navigator.geolocation){ showToast('⚠ GPS desteklenmiyor',true); return; }
+  navigator.geolocation.getCurrentPosition(
+    (pos)=>{ onGeoUpdate(pos); showToast('✓ GPS bağlandı');
+      geoWatchId=navigator.geolocation.watchPosition(onGeoUpdate,onGeoError,{enableHighAccuracy:true,maximumAge:3000,timeout:20000});
+    },
+    (err)=>{ onGeoError(err);
+      geoWatchId=navigator.geolocation.watchPosition(onGeoUpdate,onGeoError,{enableHighAccuracy:false,maximumAge:5000,timeout:30000});
+    },
+    {enableHighAccuracy:true,timeout:15000,maximumAge:0}
+  );
+}
+
+function exitKiosk(){
+  kioskActive=false;
+  document.getElementById('kioskOverlay').classList.remove('active');
+  releaseWakeLock();
+  if(geoWatchId!==null){navigator.geolocation.clearWatch(geoWatchId);geoWatchId=null;}
+  if(tripElapsedTimer){clearInterval(tripElapsedTimer);tripElapsedTimer=null;}
+  showTripSummary();
+}
+
+function onGeoUpdate(pos){
+  const lat=pos.coords.latitude, lng=pos.coords.longitude;
+  const acc=pos.coords.accuracy, spd=pos.coords.speed;
+  const latlng=[lat,lng];
+  if(!tripStartPos){
+    tripStartPos={lat,lng};
+    reverseGeocode(lat,lng,'start');
+    startMarker=L.circleMarker(latlng,{radius:8,fillColor:'#00ff88',color:'#00e5ff',weight:2,opacity:1,fillOpacity:1}).addTo(kioskMap);
+    kioskMap.setView(latlng,16);
+  }
+  if(tripLastPos){ tripDistM+=haversine(tripLastPos.lat,tripLastPos.lng,lat,lng); }
+  tripLastPos={lat,lng};
+  document.getElementById('kDist').textContent=(tripDistM/1000).toFixed(2)+' km';
+  pathPoints.push(latlng);
+  if(pathLine) kioskMap.removeLayer(pathLine);
+  pathLine=L.polyline(pathPoints,{color:'#00e5ff',weight:3,opacity:.8}).addTo(kioskMap);
+  if(currentMarker) kioskMap.removeLayer(currentMarker);
+  currentMarker=L.circleMarker(latlng,{radius:10,fillColor:'#00e5ff',color:'#fff',weight:2,opacity:1,fillOpacity:.9}).addTo(kioskMap);
+  if(accuracyCircle) kioskMap.removeLayer(accuracyCircle);
+  accuracyCircle=L.circle(latlng,{radius:acc,color:'#00e5ff',fillColor:'#00e5ff',fillOpacity:.07,weight:1}).addTo(kioskMap);
+  kioskMap.panTo(latlng,{animate:true,duration:0.5});
+  document.getElementById('kCurPos').textContent=lat.toFixed(5)+', '+lng.toFixed(5);
+  document.getElementById('kSpeed').textContent=(spd!=null?(spd*3.6).toFixed(1):'—')+' km/s';
+}
+
+function onGeoError(err){
+  let msg='GPS Hatası';
+  if(err.code===1) msg='⚠ Konum izni reddedildi';
+  else if(err.code===2) msg='⚠ Konum alınamadı';
+  else if(err.code===3) msg='⚠ GPS zaman aşımı';
+  showToast(msg,true);
+  document.getElementById('kStartPos').textContent=msg.replace('⚠ ','');
+}
+
+function updateElapsed(){
+  if(!tripStartTime) return;
+  const s=Math.floor((Date.now()-tripStartTime.getTime())/1000);
+  document.getElementById('kElapsed').textContent=String(Math.floor(s/60)).padStart(2,'0')+':'+String(s%60).padStart(2,'0');
+}
+
+function reverseGeocode(lat,lng,type){
+  fetch(`https://nominatim.openstreetmap.org/reverse?lat=${lat}&lon=${lng}&format=json`)
+    .then(r=>r.json()).then(d=>{
+      const addr=d.display_name?d.display_name.split(',').slice(0,3).join(', '):`${lat.toFixed(4)}, ${lng.toFixed(4)}`;
+      if(type==='start'){document.getElementById('kStartPos').textContent=addr.substring(0,40);window._tripStartAddr=addr;}
+      else window._tripEndAddr=addr;
+    }).catch(()=>{ if(type==='start')window._tripStartAddr=`${lat.toFixed(5)}, ${lng.toFixed(5)}`; else window._tripEndAddr=`${lat.toFixed(5)}, ${lng.toFixed(5)}`; });
+}
+
+function haversine(lat1,lng1,lat2,lng2){
+  const R=6371000,dLat=(lat2-lat1)*Math.PI/180,dLng=(lng2-lng1)*Math.PI/180;
+  const a=Math.sin(dLat/2)**2+Math.cos(lat1*Math.PI/180)*Math.cos(lat2*Math.PI/180)*Math.sin(dLng/2)**2;
+  return R*2*Math.atan2(Math.sqrt(a),Math.sqrt(1-a));
+}
+
+function showTripSummary(){
+  const endTime=new Date();
+  const durS=Math.floor((endTime-tripStartTime)/1000);
+  if(tripLastPos) reverseGeocode(tripLastPos.lat,tripLastPos.lng,'end');
+  setTimeout(()=>{
+    document.getElementById('sumStart').textContent=window._tripStartAddr||'— konum alınamadı';
+    document.getElementById('sumEnd').textContent=window._tripEndAddr||'— konum alınamadı';
+    document.getElementById('sumDist').textContent=(tripDistM/1000).toFixed(2)+' km ('+Math.round(tripDistM)+' m)';
+    document.getElementById('sumDur').textContent=fmtDur(durS);
+    document.getElementById('sumStartTime').textContent=tripStartTime.toLocaleTimeString('tr-TR');
+    document.getElementById('sumEndTime').textContent=endTime.toLocaleTimeString('tr-TR');
+    document.getElementById('tripSummary').classList.add('active');
+  }, tripLastPos?1200:0);
+}
+
+function closeTripSummary(){ document.getElementById('tripSummary').classList.remove('active'); window._tripStartAddr=null; window._tripEndAddr=null; }
+function fmtDur(s){ const h=Math.floor(s/3600),m=Math.floor((s%3600)/60),sec=s%60; return h>0?`${h}s ${m}dk ${sec}sn`:`${m}dk ${sec}sn`; }
+
+// ════════════════════════════════════════
+//  WAKE LOCK
+// ════════════════════════════════════════
+let wakeLock=null;
+async function requestWakeLock(){
+  if(!('wakeLock' in navigator)) return;
+  try{ wakeLock=await navigator.wakeLock.request('screen'); }catch(e){}
+}
+async function releaseWakeLock(){
+  if(wakeLock){ try{await wakeLock.release();}catch(e){} wakeLock=null; }
+}
+function initWakeLock(){
+  document.addEventListener('visibilitychange',async()=>{
+    if(document.visibilityState==='visible' && kioskActive){
+      await requestWakeLock();
+      document.getElementById('kioskOverlay').classList.add('active');
+    }
+  });
+}
+
+// ════════════════════════════════════════
+//  YARDIMCILAR
+// ════════════════════════════════════════
+function fmt(s){ const v=Math.max(0,s); return `${Math.floor(v/60)}:${String(v%60).padStart(2,'0')}`; }
+function fmtCost(s){ return `${Math.floor(s/60)}dk ${s%60}sn`; }
+function pct100(){ return Math.max(0,Math.round((state.remainS/MAX_S)*100)); }
+function now(){ return new Date().toLocaleTimeString('tr-TR'); }
+
+// Cost hint
+document.getElementById('useInput').addEventListener('input',function(){
+  const v=parseFloat(this.value),hint=document.getElementById('costHint');
+  if(!isNaN(v)&&v>0){
+    const c=Math.round(v*USAGE_RATIO),ok=c<=state.remainS;
+    hint.style.color=ok?'var(--text3)':'var(--red)';
+    hint.textContent=`→ ${v}dk = ${fmtCost(c)} pil düşer${ok?'':' ⚠ YETERSİZ!'}`;
+  }else{hint.style.color='var(--text3)';hint.textContent='— dakika giriniz';}
+});
+
+// Tema
+function toggleTheme(){
+  const h=document.documentElement,dark=h.getAttribute('data-theme')==='dark';
+  h.setAttribute('data-theme',dark?'light':'dark');
+  document.getElementById('themeBtn').textContent=dark?'🌙 TEMA':'☀ TEMA';
+}
+
+// Toast
+let toastTimer=null;
+function showToast(msg,isErr=false){
+  const t=document.getElementById('toast');
+  t.textContent=msg; t.className='toast show'+(isErr?' err':'');
+  if(toastTimer) clearTimeout(toastTimer);
+  toastTimer=setTimeout(()=>{t.className='toast'+(isErr?' err':'');},3500);
+}
+
+// Saat
+function tick(){ document.getElementById('clock').textContent=new Date().toLocaleTimeString('tr-TR'); }
+
+// Enter / Escape
+document.addEventListener('keydown',e=>{
+  if(e.key==='Enter'&&['useInput','descInput'].includes(document.activeElement.id)) addUsage();
+  if(e.key==='Escape'&&kioskActive) exitKiosk();
+});
+
+// ════════════════════════════════════════
+//  BAŞLAT
+// ════════════════════════════════════════
+tick(); setInterval(tick,1000);
+initWakeLock();
+updateUI();
+// Sayfa açılışında buluttan çek
+pullState();
+</script>
+</body>
+</html>

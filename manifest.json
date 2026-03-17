@@ -1,0 +1,20 @@
+{
+  "name": "Opel Nuna Warriant — Pil Takip",
+  "short_name": "BATMON",
+  "description": "Opel Nuna Warriant cihazı için gerçek zamanlı pil ömrü takip sistemi.",
+  "start_url": "./index.html",
+  "display": "standalone",
+  "background_color": "#0a0c0f",
+  "theme_color": "#00e5ff",
+  "orientation": "any",
+  "lang": "tr",
+  "icons": [
+    {
+      "src": "logo.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ],
+  "categories": ["utilities", "productivity"]
+}
