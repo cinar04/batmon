@@ -17,9 +17,9 @@
     --bg:#0a0c0f;--bg2:#10141a;--bg3:#161c25;
     --border:#1e2a38;--border2:#2a3a50;
     --text:#c8d8e8;--text2:#6a8aaa;--text3:#3a5070;
-    --accent:#00e5ff;--green:#00ff88;--yellow:#ffcc00;
+    --accent:#ff3b3b;--green:#00ff88;--yellow:#ffcc00;
     --red:#ff3355;--orange:#ff8800;
-    --glow:rgba(0,229,255,.15);--red-glow:rgba(255,51,85,.2);
+    --glow:rgba(255,59,59,.15);--red-glow:rgba(255,51,85,.2);
   }
   :root[data-theme="light"]{
     --bg:#eef2f7;--bg2:#fff;--bg3:#f0f4f9;
@@ -45,7 +45,7 @@
   #clock{font-family:'Share Tech Mono',monospace;font-size:12px;color:var(--text2);}
   .hdr-btn{background:var(--bg3);border:1px solid var(--border2);color:var(--text2);padding:6px 11px;font-family:'Barlow Condensed',sans-serif;font-size:12px;letter-spacing:2px;text-transform:uppercase;cursor:pointer;transition:all .2s;}
   .hdr-btn:hover{border-color:var(--accent);color:var(--accent);}
-  .kiosk-btn{border-color:var(--accent);color:var(--accent);background:rgba(0,229,255,.07);}
+  .kiosk-btn{border-color:var(--accent);color:var(--accent);background:rgba(255,59,59,.07);}
   .sync-badge{font-family:"Share Tech Mono",monospace;font-size:11px;letter-spacing:1px;min-width:120px;}
   .kiosk-btn:hover{background:var(--accent);color:var(--bg);}
 
@@ -147,7 +147,7 @@
     padding:10px 20px;background:rgba(10,12,15,.95);
     border-bottom:2px solid var(--accent);
     flex-shrink:0;gap:16px;
-    box-shadow:0 0 20px rgba(0,229,255,.1);
+    box-shadow:0 0 20px rgba(255,59,59,.1);
   }
   .kiosk-device{font-size:13px;font-weight:900;letter-spacing:3px;text-transform:uppercase;color:var(--accent);}
   .kiosk-batt-mini{display:flex;align-items:center;gap:10px;}
@@ -181,12 +181,12 @@
   /* Çıkış butonu */
 
   /* ── KİOSK KULLANIM BUTONU ── */
-  .kiosk-use-btn{background:rgba(0,229,255,.12);border:1px solid var(--accent);color:var(--accent);padding:5px 12px;font-family:'Barlow Condensed',sans-serif;font-size:12px;letter-spacing:2px;text-transform:uppercase;cursor:pointer;transition:all .2s;white-space:nowrap;}
+  .kiosk-use-btn{background:rgba(255,59,59,.12);border:1px solid var(--accent);color:var(--accent);padding:5px 12px;font-family:'Barlow Condensed',sans-serif;font-size:12px;letter-spacing:2px;text-transform:uppercase;cursor:pointer;transition:all .2s;white-space:nowrap;}
   .kiosk-use-btn:hover{background:var(--accent);color:var(--bg);}
   .kiosk-use-btn.active{background:var(--accent);color:var(--bg);}
 
   /* ── KİOSK KULLANIM MODAL ── */
-  .ku-box{background:#10141a;border:2px solid var(--accent);padding:28px;min-width:300px;max-width:420px;width:90%;box-shadow:0 0 40px rgba(0,229,255,.2);position:relative;}
+  .ku-box{background:#10141a;border:2px solid var(--accent);padding:28px;min-width:300px;max-width:420px;width:90%;box-shadow:0 0 40px rgba(255,59,59,.2);position:relative;}
   .ku-box::before{content:'';position:absolute;top:0;left:0;width:3px;height:100%;background:var(--accent);}
   .ku-title{font-size:20px;font-weight:900;letter-spacing:4px;text-transform:uppercase;color:var(--accent);margin-bottom:8px;}
   .ku-desc{font-family:'Share Tech Mono',monospace;font-size:11px;color:var(--text2);margin-bottom:18px;line-height:1.6;}
@@ -196,7 +196,7 @@
   .ku-hint{font-family:'Share Tech Mono',monospace;font-size:11px;color:var(--text3);}
   .ku-btns{display:flex;gap:10px;}
   .ku-btn-yes{flex:1;background:var(--accent);border:none;color:#0a0c0f;padding:13px;font-family:'Barlow Condensed',sans-serif;font-size:14px;font-weight:900;letter-spacing:3px;text-transform:uppercase;cursor:pointer;transition:all .2s;}
-  .ku-btn-yes:hover{box-shadow:0 0 20px rgba(0,229,255,.3);}
+  .ku-btn-yes:hover{box-shadow:0 0 20px rgba(255,59,59,.3);}
   .ku-btn-no{flex:1;background:transparent;border:1px solid var(--border2);color:var(--text2);padding:13px;font-family:'Barlow Condensed',sans-serif;font-size:14px;letter-spacing:3px;text-transform:uppercase;cursor:pointer;transition:all .2s;}
   .ku-btn-no:hover{border-color:var(--red);color:var(--red);}
   .kiosk-exit-btn{
@@ -362,7 +362,7 @@
       <svg viewBox="0 0 100 100" width="34" height="34" xmlns="http://www.w3.org/2000/svg">
         <defs>
           <linearGradient id="lg1" x1="0%" y1="0%" x2="0%" y2="100%">
-            <stop offset="0%" stop-color="#00e5ff"/><stop offset="100%" stop-color="#0077aa"/>
+            <stop offset="0%" stop-color="#ff3b3b"/><stop offset="100%" stop-color="#0077aa"/>
           </linearGradient>
           <linearGradient id="lg2" x1="0%" y1="0%" x2="100%" y2="0%">
             <stop offset="0%" stop-color="#00ff88" stop-opacity=".9"/><stop offset="100%" stop-color="#00cc66" stop-opacity=".5"/>
@@ -389,7 +389,7 @@
     <button class="hdr-btn kiosk-btn" onclick="enterKiosk()">⊕ TAM EKRAN GPS</button>
     <button class="hdr-btn" id="themeBtn" onclick="toggleTheme()">☀ TEMA</button>
     <a href="../bakim.html" class="hdr-btn" style="border-color:var(--orange);color:var(--orange);">🔧 BAKIM</a>
-    <a href="../" class="hdr-btn" style="border-color:var(--green);color:var(--green);">← ARAÇLAR</a>
+    <a href="../index.html" class="hdr-btn" style="border-color:var(--green);color:var(--green);">← ARAÇLAR</a>
   </div>
 </header>
 
@@ -619,7 +619,7 @@
       <div style="padding:12px 18px;border-bottom:1px solid var(--border);">
         <div style="font-family:'Share Tech Mono',monospace;font-size:9px;letter-spacing:4px;color:var(--text3);text-transform:uppercase;margin-bottom:8px;">// hesaplama modu</div>
         <div style="display:flex;gap:0;margin-bottom:10px;">
-          <div class="rota-mode-btn active" id="rModeAB" onclick="rotaSetMode('ab')" style="flex:1;padding:8px;border:1px solid var(--accent);background:rgba(0,229,255,.07);color:var(--accent);font-family:'Barlow Condensed',sans-serif;font-size:11px;letter-spacing:2px;text-transform:uppercase;cursor:pointer;text-align:center;transition:all .2s;">📍 A→B</div>
+          <div class="rota-mode-btn active" id="rModeAB" onclick="rotaSetMode('ab')" style="flex:1;padding:8px;border:1px solid var(--accent);background:rgba(255,59,59,.07);color:var(--accent);font-family:'Barlow Condensed',sans-serif;font-size:11px;letter-spacing:2px;text-transform:uppercase;cursor:pointer;text-align:center;transition:all .2s;">📍 A→B</div>
           <div class="rota-mode-btn" id="rModeCircle" onclick="rotaSetMode('circle')" style="flex:1;padding:8px;border:1px solid var(--border2);background:var(--bg3);color:var(--text3);font-family:'Barlow Condensed',sans-serif;font-size:11px;letter-spacing:2px;text-transform:uppercase;cursor:pointer;text-align:center;transition:all .2s;">⚡ DAİRE</div>
           <div class="rota-mode-btn" id="rModeReturn" onclick="rotaSetMode('return')" style="flex:1;padding:8px;border:1px solid var(--border2);border-left:none;background:var(--bg3);color:var(--text3);font-family:'Barlow Condensed',sans-serif;font-size:11px;letter-spacing:2px;text-transform:uppercase;cursor:pointer;text-align:center;transition:all .2s;">🔄 G/G</div>
         </div>
@@ -645,7 +645,7 @@
         <div>
           <label style="font-family:'Share Tech Mono',monospace;font-size:9px;letter-spacing:3px;color:var(--text3);text-transform:uppercase;display:block;margin-bottom:4px;">Rota Tipi</label>
           <div style="display:flex;gap:0;">
-            <div id="rRouteTypeDriving" onclick="rotaSetRouteType('driving')" style="flex:1;padding:7px;border:1px solid var(--accent);background:rgba(0,229,255,.07);color:var(--accent);font-family:'Barlow Condensed',sans-serif;font-size:11px;letter-spacing:2px;text-transform:uppercase;cursor:pointer;text-align:center;">🚗 ARAÇ</div>
+            <div id="rRouteTypeDriving" onclick="rotaSetRouteType('driving')" style="flex:1;padding:7px;border:1px solid var(--accent);background:rgba(255,59,59,.07);color:var(--accent);font-family:'Barlow Condensed',sans-serif;font-size:11px;letter-spacing:2px;text-transform:uppercase;cursor:pointer;text-align:center;">🚗 ARAÇ</div>
             <div id="rRouteTypeWalking" onclick="rotaSetRouteType('walking')" style="flex:1;padding:7px;border:1px solid var(--border2);background:var(--bg3);color:var(--text3);font-family:'Barlow Condensed',sans-serif;font-size:11px;letter-spacing:2px;text-transform:uppercase;cursor:pointer;text-align:center;">🚶 YÜRÜYÜŞ</div>
             <div id="rRouteTypeStraight" onclick="rotaSetRouteType('straight')" style="flex:1;padding:7px;border:1px solid var(--border2);border-left:none;background:var(--bg3);color:var(--text3);font-family:'Barlow Condensed',sans-serif;font-size:11px;letter-spacing:2px;text-transform:uppercase;cursor:pointer;text-align:center;">📏 DÜZ</div>
           </div>
@@ -999,7 +999,7 @@ function onGeoUpdate(pos){
   if(!tripStartPos){
     tripStartPos={lat,lng};
     reverseGeocode(lat,lng,'start');
-    startMarker=L.circleMarker(latlng,{radius:8,fillColor:'#00ff88',color:'#00e5ff',weight:2,opacity:1,fillOpacity:1}).addTo(kioskMap);
+    startMarker=L.circleMarker(latlng,{radius:8,fillColor:'#00ff88',color:'#ff3b3b',weight:2,opacity:1,fillOpacity:1}).addTo(kioskMap);
     kioskMap.setView(latlng,16);
   }
   if(tripLastPos){ tripDistM+=haversine(tripLastPos.lat,tripLastPos.lng,lat,lng); }
@@ -1007,11 +1007,11 @@ function onGeoUpdate(pos){
   document.getElementById('kDist').textContent=(tripDistM/1000).toFixed(2)+' km';
   pathPoints.push(latlng);
   if(pathLine) kioskMap.removeLayer(pathLine);
-  pathLine=L.polyline(pathPoints,{color:'#00e5ff',weight:3,opacity:.8}).addTo(kioskMap);
+  pathLine=L.polyline(pathPoints,{color:'#ff3b3b',weight:3,opacity:.8}).addTo(kioskMap);
   if(currentMarker) kioskMap.removeLayer(currentMarker);
-  currentMarker=L.circleMarker(latlng,{radius:10,fillColor:'#00e5ff',color:'#fff',weight:2,opacity:1,fillOpacity:.9}).addTo(kioskMap);
+  currentMarker=L.circleMarker(latlng,{radius:10,fillColor:'#ff3b3b',color:'#fff',weight:2,opacity:1,fillOpacity:.9}).addTo(kioskMap);
   if(accuracyCircle) kioskMap.removeLayer(accuracyCircle);
-  accuracyCircle=L.circle(latlng,{radius:acc,color:'#00e5ff',fillColor:'#00e5ff',fillOpacity:.07,weight:1}).addTo(kioskMap);
+  accuracyCircle=L.circle(latlng,{radius:acc,color:'#ff3b3b',fillColor:'#ff3b3b',fillOpacity:.07,weight:1}).addTo(kioskMap);
   kioskMap.panTo(latlng,{animate:true,duration:0.5});
   document.getElementById('kCurPos').textContent=lat.toFixed(5)+', '+lng.toFixed(5);
   document.getElementById('kSpeed').textContent=(spd!=null?(spd*3.6).toFixed(1):'—')+' km/s';
@@ -1407,7 +1407,7 @@ function rotaSetMode(mode) {
     const isActive = id === 'rMode' + mode.charAt(0).toUpperCase() + mode.slice(1);
     el.style.borderColor = isActive ? 'var(--accent)' : 'var(--border2)';
     el.style.color = isActive ? 'var(--accent)' : 'var(--text3)';
-    el.style.background = isActive ? 'rgba(0,229,255,.07)' : 'var(--bg3)';
+    el.style.background = isActive ? 'rgba(255,59,59,.07)' : 'var(--bg3)';
   });
   document.getElementById('rFormAB').style.display = mode === 'ab' ? 'block' : 'none';
   document.getElementById('rFormCircle').style.display = mode === 'circle' ? 'block' : 'none';
@@ -1424,7 +1424,7 @@ function rotaSetRouteType(type) {
     const isActive = id === 'rRouteType' + type.charAt(0).toUpperCase() + type.slice(1);
     el.style.borderColor = isActive ? 'var(--accent)' : 'var(--border2)';
     el.style.color = isActive ? 'var(--accent)' : 'var(--text3)';
-    el.style.background = isActive ? 'rgba(0,229,255,.07)' : 'var(--bg3)';
+    el.style.background = isActive ? 'rgba(255,59,59,.07)' : 'var(--bg3)';
   });
 }
 
@@ -1433,9 +1433,9 @@ function rotaSetPoint(type, lat, lng, reverse=false) {
   if(type === 'start' || type === 'returnStart') rotaStartLL = ll;
   if(type === 'end' || type === 'returnEnd') rotaEndLL = ll;
   if(type === 'center') rotaCenterLL = ll;
-  const colors = {start:'#00ff88', end:'#ff3355', center:'#00e5ff', returnStart:'#00ff88', returnEnd:'#ffcc00'};
+  const colors = {start:'#00ff88', end:'#ff3355', center:'#ff3b3b', returnStart:'#00ff88', returnEnd:'#ffcc00'};
   const icons = {start:'S', end:'E', center:'C', returnStart:'S', returnEnd:'E'};
-  const c = colors[type]||'#00e5ff'; const ltr = icons[type]||'?';
+  const c = colors[type]||'#ff3b3b'; const ltr = icons[type]||'?';
   if(rotaMarkers[type]) rotaMap.removeLayer(rotaMarkers[type]);
   rotaMarkers[type] = L.marker(ll, {icon: L.divIcon({className:'',html:`<div style="width:26px;height:26px;background:${c};border:2px solid #fff;border-radius:50%;display:flex;align-items:center;justify-content:center;font-family:Share Tech Mono,monospace;font-size:11px;font-weight:900;color:#0a0c0f;box-shadow:0 0 10px ${c};">${ltr}</div>`,iconSize:[26,26],iconAnchor:[13,13]})}).addTo(rotaMap);
   if(reverse) {
@@ -1554,7 +1554,7 @@ async function rotaCalcAB(remainKmVal){
   const afterBatt = Math.max(0, remainKmVal - distKm);
   const afterPct = Math.round((afterBatt/ROTA_MAX_KM)*100);
   if(rotaRouteLayer) rotaMap.removeLayer(rotaRouteLayer);
-  rotaRouteLayer = L.polyline(coords, {color: canGo?'#00e5ff':'#ff3355', weight:4, opacity:.85}).addTo(rotaMap);
+  rotaRouteLayer = L.polyline(coords, {color: canGo?'#ff3b3b':'#ff3355', weight:4, opacity:.85}).addTo(rotaMap);
   rotaMap.fitBounds(rotaRouteLayer.getBounds(), {padding:[40,40]});
   let verdict='', vc='';
   if(canGo&&afterPct>30){verdict='✅ GİDEBİLİRSİN';vc='go';}
@@ -1575,7 +1575,7 @@ function rotaCalcCircle(remainKmVal){
   const radiusKm = isNaN(kmVal)||kmVal<=0 ? remainKmVal : Math.min(kmVal, remainKmVal);
   if(rotaCircleLayer) rotaMap.removeLayer(rotaCircleLayer);
   if(rotaRangeCircle) rotaMap.removeLayer(rotaRangeCircle);
-  rotaCircleLayer = L.circle(rotaCenterLL, {radius:radiusKm*1000, color:'#00e5ff', fillColor:'#00e5ff', fillOpacity:.08, weight:2, dashArray:'6,4'}).addTo(rotaMap);
+  rotaCircleLayer = L.circle(rotaCenterLL, {radius:radiusKm*1000, color:'#ff3b3b', fillColor:'#ff3b3b', fillOpacity:.08, weight:2, dashArray:'6,4'}).addTo(rotaMap);
   const critKm = radiusKm*0.3;
   rotaRangeCircle = L.circle(rotaCenterLL, {radius:critKm*1000, color:'#ff3355', fillColor:'#ff3355', fillOpacity:.05, weight:1, dashArray:'3,6'}).addTo(rotaMap);
   rotaMap.fitBounds(rotaCircleLayer.getBounds(), {padding:[30,30]});
@@ -1597,7 +1597,7 @@ async function rotaCalcReturn(remainKmVal){
   const canReturn = totalDist <= usableBatt;
   const afterBatt = Math.max(0, remainKmVal - totalDist);
   if(rotaRouteLayer) rotaMap.removeLayer(rotaRouteLayer);
-  rotaRouteLayer = L.polyline(coords, {color:'#00e5ff', weight:4, opacity:.85}).addTo(rotaMap);
+  rotaRouteLayer = L.polyline(coords, {color:'#ff3b3b', weight:4, opacity:.85}).addTo(rotaMap);
   L.polyline(retCoords, {color:'#ffcc00', weight:4, opacity:.6, dashArray:'8,5'}).addTo(rotaMap);
   rotaMap.fitBounds(L.polyline([...coords,...retCoords]).getBounds(), {padding:[40,40]});
   let verdict='', vc='';

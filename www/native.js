@@ -7,7 +7,7 @@
   const FB = { apiKey:"AIzaSyAWN3NBqrq721ryFZpd1FkNeC4XKfEtdOI", authDomain:"firebaxex.firebaseapp.com",
     projectId:"firebaxex", storageBucket:"firebaxex.firebasestorage.app",
     messagingSenderId:"670679472993", appId:"1:670679472993:web:8d9c89411d85d6ede00320" };
-  const CARS = { nuna:'Opel Nuna', joie:'Joie Litetrax 4', mgs:'Migas Mirage Pro Z90' };
+  const CARS = { nuna:'Opel Nuna', joie:'Joie Litetrax 4' };
   const WARN = 30, DANGER = 15, EVERY_MS = 15 * 60 * 1000;
   const UPDATE_URL = 'https://batmon.web.app/version.json';
   const DATA_SYNC = 1, LOCATION = 8;
