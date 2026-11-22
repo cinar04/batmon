@@ -1,0 +1,7 @@
+<?xml version='1.0' encoding='utf-8'?>
+<resources>
+    <string name="app_name">BATMON</string>
+    <string name="title_activity_main">BATMON</string>
+    <string name="package_name">app.batmon.pil</string>
+    <string name="custom_url_scheme">app.batmon.pil</string>
+</resources>

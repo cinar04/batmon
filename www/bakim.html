@@ -1,0 +1,667 @@
+<!DOCTYPE html>
+<html lang="tr" data-theme="dark">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>BATMON — BAKIM TAKİBİ</title>
+<link rel="icon" type="image/svg+xml" href="logo.svg">
+<link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=Barlow+Condensed:wght@300;400;600;700;900&display=swap" rel="stylesheet">
+<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore-compat.js"></script>
+<script src="firebase.js"></script>
+<style>
+:root{
+  --bg:#0a0c0f;--bg2:#10141a;--bg3:#161c25;
+  --border:#1e2a38;--border2:#2a3a50;
+  --text:#c8d8e8;--text2:#6a8aaa;--text3:#3a5070;
+  --accent:#00e5ff;--green:#00ff88;--yellow:#ffcc00;
+  --red:#ff3355;--orange:#ff8800;
+  --glow:rgba(0,229,255,.15);
+}
+*{margin:0;padding:0;box-sizing:border-box;}
+body{background:var(--bg);color:var(--text);font-family:'Barlow Condensed',sans-serif;min-height:100vh;}
+
+/* HEADER */
+.header{display:flex;justify-content:space-between;align-items:center;padding:14px 24px;border-bottom:1px solid var(--border);background:var(--bg2);position:sticky;top:0;z-index:100;}
+.header-left{display:flex;align-items:center;gap:12px;}
+.logo-wrap{width:38px;height:38px;border:2px solid var(--accent);display:flex;align-items:center;justify-content:center;box-shadow:0 0 14px var(--glow);}
+.header-title{font-size:17px;font-weight:900;letter-spacing:4px;text-transform:uppercase;color:var(--accent);}
+.header-sub{font-family:'Share Tech Mono',monospace;font-size:10px;color:var(--text3);letter-spacing:2px;margin-top:2px;}
+.hdr-right{display:flex;align-items:center;gap:10px;}
+.hdr-btn{background:transparent;border:1px solid var(--border2);color:var(--text2);padding:7px 14px;font-family:'Barlow Condensed',sans-serif;font-size:12px;letter-spacing:2px;text-transform:uppercase;cursor:pointer;transition:all .2s;text-decoration:none;display:inline-block;}
+.hdr-btn:hover{border-color:var(--accent);color:var(--accent);}
+#clock{font-family:'Share Tech Mono',monospace;font-size:12px;color:var(--text2);}
+
+/* ARAÇ SEÇİCİ */
+.car-tabs{display:flex;gap:0;border-bottom:2px solid var(--border);background:var(--bg2);}
+.car-tab{flex:1;padding:14px;text-align:center;font-size:14px;font-weight:700;letter-spacing:3px;text-transform:uppercase;cursor:pointer;border-bottom:2px solid transparent;margin-bottom:-2px;transition:all .2s;color:var(--text3);}
+.car-tab.active{color:var(--accent);border-bottom-color:var(--accent);}
+.car-tab.joie-tab.active{color:var(--green);border-bottom-color:var(--green);}
+.car-tab.mgs-tab.active{color:#bf00ff;border-bottom-color:#bf00ff;}
+
+/* GRID */
+.main{max-width:960px;margin:0 auto;padding:24px;}
+.page-label{font-family:'Share Tech Mono',monospace;font-size:10px;letter-spacing:5px;color:var(--text3);text-transform:uppercase;margin-bottom:20px;}
+
+.cards-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:24px;}
+@media(max-width:600px){.cards-grid{grid-template-columns:1fr;}}
+
+/* BAKIM KARTI */
+.bakim-card{background:var(--bg2);border:1px solid var(--border);position:relative;overflow:hidden;}
+.bakim-card::before{content:'';position:absolute;top:0;left:0;width:3px;height:100%;background:var(--accent);}
+.bakim-card.warn::before{background:var(--yellow);}
+.bakim-card.danger::before{background:var(--red);animation:pulse-border 1.5s infinite;}
+@keyframes pulse-border{0%,100%{box-shadow:0 0 6px var(--red)}50%{box-shadow:0 0 18px var(--red)}}
+
+.card-header{padding:16px 18px 12px 22px;border-bottom:1px solid var(--border);display:flex;justify-content:space-between;align-items:flex-start;}
+.card-label{font-family:'Share Tech Mono',monospace;font-size:9px;letter-spacing:4px;text-transform:uppercase;color:var(--text3);margin-bottom:5px;}
+.card-name{font-size:20px;font-weight:900;letter-spacing:2px;text-transform:uppercase;}
+.card-icon{font-size:28px;opacity:.7;}
+
+.card-body{padding:14px 18px 14px 22px;}
+
+/* DAYANIKLILIK BAR */
+.dur-wrap{margin-bottom:12px;}
+.dur-label-row{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:5px;}
+.dur-label{font-family:'Share Tech Mono',monospace;font-size:9px;letter-spacing:3px;color:var(--text3);text-transform:uppercase;}
+.dur-val{font-family:'Share Tech Mono',monospace;font-size:22px;font-weight:900;}
+.dur-bar{height:10px;background:var(--bg3);border:1px solid var(--border2);overflow:hidden;}
+.dur-fill{height:100%;transition:width 1s cubic-bezier(.4,0,.2,1);}
+
+/* META */
+.card-meta{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:14px;}
+.meta-item{background:var(--bg3);border:1px solid var(--border);padding:8px 10px;}
+.meta-key{font-family:'Share Tech Mono',monospace;font-size:8px;letter-spacing:3px;color:var(--text3);text-transform:uppercase;margin-bottom:2px;}
+.meta-val{font-family:'Share Tech Mono',monospace;font-size:13px;color:var(--text);}
+
+/* BUTONLAR */
+.card-footer{padding:10px 18px 14px 22px;display:flex;gap:8px;}
+.btn-reset{flex:1;padding:9px;background:transparent;border:1px solid var(--border2);color:var(--text3);font-family:'Barlow Condensed',sans-serif;font-size:12px;letter-spacing:2px;text-transform:uppercase;cursor:pointer;transition:all .2s;}
+.btn-reset:hover{border-color:var(--green);color:var(--green);}
+.btn-reset.danger-btn{border-color:var(--red);color:var(--red);}
+.btn-reset.danger-btn:hover{background:rgba(255,51,85,.1);}
+
+/* FREN KARTI ÖZEL */
+.fren-status{text-align:center;padding:18px 0 10px;}
+.fren-date{font-family:'Share Tech Mono',monospace;font-size:28px;font-weight:900;margin-bottom:4px;}
+.fren-sub{font-family:'Share Tech Mono',monospace;font-size:10px;color:var(--text3);letter-spacing:3px;}
+.fren-countdown{margin-top:10px;font-family:'Share Tech Mono',monospace;font-size:12px;padding:7px;border:1px solid var(--border2);text-align:center;}
+
+/* ÖZET BÖLÜM */
+.summary-box{background:var(--bg2);border:1px solid var(--border);padding:18px 22px;margin-bottom:24px;}
+.summary-title{font-family:'Share Tech Mono',monospace;font-size:9px;letter-spacing:5px;text-transform:uppercase;color:var(--text3);margin-bottom:14px;}
+.summary-row{display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:1px solid var(--border);}
+.summary-row:last-child{border-bottom:none;}
+.summary-key{font-family:'Share Tech Mono',monospace;font-size:11px;color:var(--text2);}
+.summary-val{font-family:'Share Tech Mono',monospace;font-size:13px;font-weight:900;}
+
+/* UYARI BANNER */
+.warn-banner{display:none;background:rgba(255,51,85,.08);border:1px solid var(--red);border-left:3px solid var(--red);padding:12px 18px;margin-bottom:20px;font-family:'Share Tech Mono',monospace;font-size:11px;color:var(--red);letter-spacing:2px;line-height:1.8;}
+
+/* SCAN */
+.scan-line{position:fixed;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,transparent,var(--accent),transparent);opacity:.05;animation:scan 5s linear infinite;pointer-events:none;}
+@keyframes scan{0%{top:0}100%{top:100%}}
+
+/* TOAST */
+.toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%) translateY(80px);background:var(--bg2);border:1px solid var(--accent);color:var(--accent);font-family:'Share Tech Mono',monospace;font-size:11px;letter-spacing:2px;padding:10px 20px;transition:transform .3s;z-index:9999;white-space:nowrap;}
+.toast.show{transform:translateX(-50%) translateY(0);}
+
+/* LOADING */
+.loading-overlay{position:fixed;inset:0;background:var(--bg);display:flex;align-items:center;justify-content:center;z-index:500;flex-direction:column;gap:12px;}
+.loading-text{font-family:'Share Tech Mono',monospace;font-size:12px;letter-spacing:4px;color:var(--accent);}
+.loading-bar{width:200px;height:3px;background:var(--bg3);overflow:hidden;}
+.loading-fill{height:100%;background:var(--accent);animation:loading 1.2s ease-in-out infinite;}
+@keyframes loading{0%{width:0;margin-left:0}50%{width:60%;margin-left:20%}100%{width:0;margin-left:100%}}
+</style>
+</head>
+<body>
+<div class="scan-line"></div>
+
+<!-- LOADING -->
+<div class="loading-overlay" id="loadingOverlay">
+  <div class="loading-text">// VERİ YÜKLENİYOR</div>
+  <div class="loading-bar"><div class="loading-fill"></div></div>
+</div>
+
+<!-- HEADER -->
+<header class="header">
+  <div class="header-left">
+    <div class="logo-wrap">
+      <svg viewBox="0 0 100 100" width="22" height="22" xmlns="http://www.w3.org/2000/svg">
+        <rect x="4" y="28" width="80" height="44" rx="4" fill="none" stroke="#1e2a38" stroke-width="3"/>
+        <rect x="84" y="38" width="10" height="24" rx="2" fill="#1e2a38"/>
+        <rect x="8" y="32" width="52" height="36" rx="2" fill="rgba(0,255,136,.4)"/>
+        <polygon points="56,14 41,54 52,54 38,86 70,46 58,46 68,14" fill="#00e5ff" opacity=".9"/>
+      </svg>
+    </div>
+    <div>
+      <div class="header-title">BATMON</div>
+      <div class="header-sub">// Bakım Takip Sistemi</div>
+    </div>
+  </div>
+  <div class="hdr-right">
+    <div id="fbStatus" style="font-family:'Share Tech Mono',monospace;font-size:10px;color:var(--text3);">⬤ BAĞLANIYOR</div>
+    <div id="clock"></div>
+    <a href="./" class="hdr-btn" style="border-color:var(--green);color:var(--green);">← ARAÇLAR</a>
+  </div>
+</header>
+
+<!-- ARAÇ SEÇICI -->
+<div class="car-tabs">
+  <div class="car-tab active" id="tabNuna" onclick="switchCar('nuna')">⚡ OPEL NUNA</div>
+  <div class="car-tab joie-tab" id="tabJoie" onclick="switchCar('joie')">⚡ JOİE LİTETRAX 4</div>
+  <div class="car-tab mgs-tab" id="tabMgs" onclick="switchCar('mgs')">⚡ MİGAS MİRAGE Z90</div>
+</div>
+
+<div class="main">
+  <div class="page-label" id="pageLabel">// OPEL NUNA — BAKIM TAKİBİ</div>
+
+  <!-- UYARI BANNER -->
+  <div class="warn-banner" id="warnBanner"></div>
+
+  <!-- ÖZET -->
+  <div class="summary-box">
+    <div class="summary-title">// ARAÇ ÖZETİ</div>
+    <div class="summary-row">
+      <span class="summary-key">Toplam Mesafe</span>
+      <span class="summary-val" id="sumTotalKm">— km</span>
+    </div>
+    <div class="summary-row">
+      <span class="summary-key">Toplam Şarj Sayısı</span>
+      <span class="summary-val" id="sumCharges">—</span>
+    </div>
+    <div class="summary-row">
+      <span class="summary-key">Son Güncelleme</span>
+      <span class="summary-val" id="sumLastUpdate">—</span>
+    </div>
+    <div class="summary-row">
+      <span class="summary-key">Firebase Senkron</span>
+      <span class="summary-val" id="sumSync" style="color:var(--text3);">—</span>
+    </div>
+  </div>
+
+  <!-- BAKIM KARTLARI -->
+  <div class="cards-grid">
+
+    <!-- MOTOR -->
+    <div class="bakim-card" id="cardMotor">
+      <div class="card-header">
+        <div>
+          <div class="card-label">// bileşen 01</div>
+          <div class="card-name">MOTOR</div>
+        </div>
+        <div class="card-icon">⚙️</div>
+      </div>
+      <div class="card-body">
+        <div class="dur-wrap">
+          <div class="dur-label-row">
+            <span class="dur-label">Dayanıklılık</span>
+            <span class="dur-val" id="motorVal">100</span>
+          </div>
+          <div class="dur-bar"><div class="dur-fill" id="motorBar" style="width:100%;"></div></div>
+        </div>
+        <div class="card-meta">
+          <div class="meta-item">
+            <div class="meta-key">Azalma</div>
+            <div class="meta-val">0.5 / km</div>
+          </div>
+          <div class="meta-item">
+            <div class="meta-key">Sıfırlandı</div>
+            <div class="meta-val" id="motorReset">—</div>
+          </div>
+          <div class="meta-item">
+            <div class="meta-key">Sıfırlama KM</div>
+            <div class="meta-val" id="motorResetKm">0 km</div>
+          </div>
+          <div class="meta-item">
+            <div class="meta-key">Tahmini Kalan</div>
+            <div class="meta-val" id="motorLeft">200 km</div>
+          </div>
+        </div>
+      </div>
+      <div class="card-footer">
+        <button class="btn-reset" onclick="resetComponent('motor')">🔧 BAKIM YAPILDI — SIFIRLA</button>
+      </div>
+    </div>
+
+    <!-- BATARYA -->
+    <div class="bakim-card" id="cardBatarya">
+      <div class="card-header">
+        <div>
+          <div class="card-label">// bileşen 02</div>
+          <div class="card-name">BATARYA</div>
+        </div>
+        <div class="card-icon">🔋</div>
+      </div>
+      <div class="card-body">
+        <div class="dur-wrap">
+          <div class="dur-label-row">
+            <span class="dur-label">Dayanıklılık</span>
+            <span class="dur-val" id="bataryaVal">100</span>
+          </div>
+          <div class="dur-bar"><div class="dur-fill" id="bataryaBar" style="width:100%;"></div></div>
+        </div>
+        <div class="card-meta">
+          <div class="meta-item">
+            <div class="meta-key">Azalma</div>
+            <div class="meta-val">2 / şarj</div>
+          </div>
+          <div class="meta-item">
+            <div class="meta-key">Sıfırlandı</div>
+            <div class="meta-val" id="bataryaReset">—</div>
+          </div>
+          <div class="meta-item">
+            <div class="meta-key">Şarj Sayısı</div>
+            <div class="meta-val" id="bataryaCharges">0 şarj</div>
+          </div>
+          <div class="meta-item">
+            <div class="meta-key">Tahmini Kalan</div>
+            <div class="meta-val" id="bataryaLeft">50 şarj</div>
+          </div>
+        </div>
+      </div>
+      <div class="card-footer">
+        <button class="btn-reset" onclick="resetComponent('batarya')">🔋 DEĞİŞTİRİLDİ — SIFIRLA</button>
+      </div>
+    </div>
+
+    <!-- LASTİK -->
+    <div class="bakim-card" id="cardLastik">
+      <div class="card-header">
+        <div>
+          <div class="card-label">// bileşen 03</div>
+          <div class="card-name">LASTİKLER</div>
+        </div>
+        <div class="card-icon">🛞</div>
+      </div>
+      <div class="card-body">
+        <div class="dur-wrap">
+          <div class="dur-label-row">
+            <span class="dur-label">Dayanıklılık</span>
+            <span class="dur-val" id="lastikVal">100</span>
+          </div>
+          <div class="dur-bar"><div class="dur-fill" id="lastikBar" style="width:100%;"></div></div>
+        </div>
+        <div class="card-meta">
+          <div class="meta-item">
+            <div class="meta-key">Azalma</div>
+            <div class="meta-val">0.5 / km</div>
+          </div>
+          <div class="meta-item">
+            <div class="meta-key">Sıfırlandı</div>
+            <div class="meta-val" id="lastikReset">—</div>
+          </div>
+          <div class="meta-item">
+            <div class="meta-key">Sıfırlama KM</div>
+            <div class="meta-val" id="lastikResetKm">0 km</div>
+          </div>
+          <div class="meta-item">
+            <div class="meta-key">Tahmini Kalan</div>
+            <div class="meta-val" id="lastikLeft">200 km</div>
+          </div>
+        </div>
+      </div>
+      <div class="card-footer">
+        <button class="btn-reset" onclick="resetComponent('lastik')">🛞 DEĞİŞTİRİLDİ — SIFIRLA</button>
+      </div>
+    </div>
+
+    <!-- FREN -->
+    <div class="bakim-card" id="cardFren">
+      <div class="card-header">
+        <div>
+          <div class="card-label">// bileşen 04</div>
+          <div class="card-name">FREN</div>
+        </div>
+        <div class="card-icon">🔴</div>
+      </div>
+      <div class="card-body">
+        <div class="fren-status">
+          <div class="fren-date" id="frenLastDate">—</div>
+          <div class="fren-sub">SON DEĞİŞİM TARİHİ</div>
+          <div class="fren-countdown" id="frenCountdown">yükleniyor...</div>
+        </div>
+        <div class="card-meta" style="margin-top:10px;">
+          <div class="meta-item" style="grid-column:1/-1;">
+            <div class="meta-key">Kural</div>
+            <div class="meta-val" style="font-size:11px;">Her ayın 1'i — zorunlu değişim</div>
+          </div>
+        </div>
+      </div>
+      <div class="card-footer">
+        <button class="btn-reset" onclick="resetComponent('fren')">🔴 DEĞİŞTİRİLDİ — TARİHİ GÜNCELLE</button>
+      </div>
+    </div>
+
+  </div><!-- /cards-grid -->
+</div><!-- /main -->
+
+<div class="toast" id="toast"></div>
+
+<script>
+// firebase.js üzerinden yükleniyor
+
+// ════════════════════════════════════════
+//  SABİTLER
+// ════════════════════════════════════════
+const MOTOR_RATE   = 0.5;  // dayanıklılık / km
+const LASTIK_RATE  = 0.5;  // dayanıklılık / km
+const BATARYA_RATE = 2;    // dayanıklılık / şarj
+
+// Uyarı eşikleri
+const WARN_THRESHOLD   = 30;
+const DANGER_THRESHOLD = 15;
+
+// ════════════════════════════════════════
+//  STATE
+// ════════════════════════════════════════
+let currentCar = 'nuna';
+
+// Her araç için varsayılan state
+function defaultMaint() {
+  return {
+    totalKm:      0,   // Firebase'deki ana km (nuna/joie state'inden gelecek)
+    totalCharges: 0,   // toplam şarj sayısı
+    motor:   { resetKm: 0, resetDate: null },
+    lastik:  { resetKm: 0, resetDate: null },
+    batarya: { resetCharges: 0, resetDate: null },
+    fren:    { lastChange: null },
+    updatedAt: null,
+  };
+}
+
+let state = defaultMaint();
+
+// ════════════════════════════════════════
+//  FİREBASE
+// ════════════════════════════════════════
+
+function setFbStatus(txt, color) {
+  const el = document.getElementById('fbStatus');
+  if (el) { el.textContent = '⬤ ' + txt; el.style.color = color; }
+  const sumEl = document.getElementById('sumSync');
+  if (sumEl) { sumEl.textContent = txt; sumEl.style.color = color; }
+}
+
+async function loadFromFirebase() {
+  
+  try {
+    // Bakım verisini çek
+    const maintSnap = await fbDb('bakim').ref(`batmon/${currentCar}_bakim`).get();
+    if (maintSnap.exists()) {
+      state = { ...defaultMaint(), ...maintSnap.val() };
+    } else {
+      state = defaultMaint();
+    }
+
+    // Ana araç state'inden totalKm ve totalCharges'ı al
+    const carSnap = await fbDb('batmon').ref(`batmon/${currentCar}_state`).get();
+    if (carSnap.exists()) {
+      const carData = carSnap.val();
+      // totalKm hesapla: MAX_S - remainS = kullanılan, ama biz toplam gidilen km istiyoruz
+      // Firebase'de totalKm tutuyorsak direkt al, yoksa hesapla
+      if (typeof carData.totalKm === 'number') state.totalKm = carData.totalKm;
+      if (typeof carData.totalCharges === 'number') state.totalCharges = carData.totalCharges;
+    }
+
+    setFbStatus('BAĞLI', 'var(--green)');
+    renderAll();
+    localStorage.setItem(`bakim_${currentCar}`, JSON.stringify(state));
+  } catch(e) {
+    setFbStatus('YEREL', 'var(--yellow)');
+    loadFromLocal();
+  }
+  document.getElementById('loadingOverlay').style.display = 'none';
+}
+
+function loadFromLocal() {
+  try {
+    const raw = localStorage.getItem(`bakim_${currentCar}`);
+    if (raw) state = { ...defaultMaint(), ...JSON.parse(raw) };
+    else state = defaultMaint();
+  } catch(e) { state = defaultMaint(); }
+  renderAll();
+  document.getElementById('loadingOverlay').style.display = 'none';
+}
+
+async function saveToFirebase() {
+  state.updatedAt = new Date().toISOString();
+  localStorage.setItem(`bakim_${currentCar}`, JSON.stringify(state));
+  
+  try {
+    await fbDb('bakim').ref(`batmon/${currentCar}_bakim`).set(state);
+    const t = new Date(state.updatedAt).toLocaleTimeString('tr-TR');
+    setFbStatus(`KAYDEDILDI ${t}`, 'var(--green)');
+  } catch(e) { setFbStatus('YEREL', 'var(--yellow)'); }
+}
+
+// ════════════════════════════════════════
+//  HESAPLAMALAR
+// ════════════════════════════════════════
+function calcMotorDur() {
+  const kmSinceReset = Math.max(0, state.totalKm - state.motor.resetKm);
+  const dur = Math.max(0, 100 - kmSinceReset * MOTOR_RATE);
+  return { dur, kmSinceReset, kmLeft: dur / MOTOR_RATE };
+}
+
+function calcLastikDur() {
+  const kmSinceReset = Math.max(0, state.totalKm - state.lastik.resetKm);
+  const dur = Math.max(0, 100 - kmSinceReset * LASTIK_RATE);
+  return { dur, kmSinceReset, kmLeft: dur / LASTIK_RATE };
+}
+
+function calcBataryaDur() {
+  const chargesSinceReset = Math.max(0, state.totalCharges - state.batarya.resetCharges);
+  const dur = Math.max(0, 100 - chargesSinceReset * BATARYA_RATE);
+  return { dur, chargesSinceReset, chargesLeft: Math.floor(dur / BATARYA_RATE) };
+}
+
+function frenStatus() {
+  if (!state.fren.lastChange) return { daysLeft: -999, overdue: true, daysOverdue: 999, nextChange: null };
+  const last = new Date(state.fren.lastChange);
+  const next = new Date(last.getFullYear(), last.getMonth() + 1, 1); // gelecek ayın 1'i
+  const now  = new Date();
+  const daysLeft = Math.ceil((next - now) / 86400000);
+  return { daysLeft, overdue: daysLeft < 0, daysOverdue: Math.abs(daysLeft), nextChange: next };
+}
+
+// ════════════════════════════════════════
+//  RENDER
+// ════════════════════════════════════════
+function durColor(v) {
+  if (v > WARN_THRESHOLD) return 'var(--green)';
+  if (v > DANGER_THRESHOLD) return 'var(--yellow)';
+  return 'var(--red)';
+}
+
+function durBgColor(v) {
+  if (v > WARN_THRESHOLD) return 'rgba(0,255,136,.5)';
+  if (v > DANGER_THRESHOLD) return 'rgba(255,204,0,.5)';
+  return 'rgba(255,51,85,.5)';
+}
+
+function cardClass(v) {
+  if (v <= DANGER_THRESHOLD) return 'danger';
+  if (v <= WARN_THRESHOLD) return 'warn';
+  return '';
+}
+
+function fmtDate(iso) {
+  if (!iso) return '—';
+  return new Date(iso).toLocaleDateString('tr-TR', {day:'2-digit',month:'2-digit',year:'numeric'});
+}
+
+function renderAll() {
+  // Motor
+  const m = calcMotorDur();
+  document.getElementById('motorVal').textContent  = m.dur.toFixed(1);
+  document.getElementById('motorVal').style.color  = durColor(m.dur);
+  document.getElementById('motorBar').style.width  = m.dur + '%';
+  document.getElementById('motorBar').style.background = durBgColor(m.dur);
+  document.getElementById('motorReset').textContent   = fmtDate(state.motor.resetDate);
+  document.getElementById('motorResetKm').textContent = state.motor.resetKm.toFixed(1) + ' km';
+  document.getElementById('motorLeft').textContent    = m.kmLeft.toFixed(1) + ' km';
+  setCardClass('cardMotor', cardClass(m.dur));
+
+  // Batarya
+  const b = calcBataryaDur();
+  document.getElementById('bataryaVal').textContent     = b.dur.toFixed(1);
+  document.getElementById('bataryaVal').style.color     = durColor(b.dur);
+  document.getElementById('bataryaBar').style.width     = b.dur + '%';
+  document.getElementById('bataryaBar').style.background= durBgColor(b.dur);
+  document.getElementById('bataryaReset').textContent   = fmtDate(state.batarya.resetDate);
+  document.getElementById('bataryaCharges').textContent = b.chargesSinceReset + ' şarj';
+  document.getElementById('bataryaLeft').textContent    = b.chargesLeft + ' şarj';
+  setCardClass('cardBatarya', cardClass(b.dur));
+
+  // Lastik
+  const l = calcLastikDur();
+  document.getElementById('lastikVal').textContent  = l.dur.toFixed(1);
+  document.getElementById('lastikVal').style.color  = durColor(l.dur);
+  document.getElementById('lastikBar').style.width  = l.dur + '%';
+  document.getElementById('lastikBar').style.background = durBgColor(l.dur);
+  document.getElementById('lastikReset').textContent   = fmtDate(state.lastik.resetDate);
+  document.getElementById('lastikResetKm').textContent = state.lastik.resetKm.toFixed(1) + ' km';
+  document.getElementById('lastikLeft').textContent    = l.kmLeft.toFixed(1) + ' km';
+  setCardClass('cardLastik', cardClass(l.dur));
+
+  // Fren
+  const f = frenStatus();
+  document.getElementById('frenLastDate').textContent = fmtDate(state.fren.lastChange);
+  let countdownTxt, countdownColor;
+  if (!state.fren.lastChange) {
+    countdownTxt = '⚠ Hiç kayıt yok — değişim yapıldı mı?';
+    countdownColor = 'var(--red)';
+    setCardClass('cardFren', 'danger');
+  } else if (f.overdue) {
+    countdownTxt = `⛔ ${f.daysOverdue} GÜN GEÇTİ — HEMEN DEĞİŞTİR`;
+    countdownColor = 'var(--red)';
+    setCardClass('cardFren', 'danger');
+  } else if (f.daysLeft <= 7) {
+    countdownTxt = `⚠ ${f.daysLeft} gün kaldı — yakında değişim gerekli`;
+    countdownColor = 'var(--yellow)';
+    setCardClass('cardFren', 'warn');
+  } else {
+    countdownTxt = `✓ ${f.daysLeft} gün kaldı — sonraki: ${f.nextChange.toLocaleDateString('tr-TR')}`;
+    countdownColor = 'var(--green)';
+    setCardClass('cardFren', '');
+  }
+  document.getElementById('frenCountdown').textContent = countdownTxt;
+  document.getElementById('frenCountdown').style.color = countdownColor;
+  document.getElementById('frenCountdown').style.borderColor = countdownColor;
+
+  // Özet
+  document.getElementById('sumTotalKm').textContent    = state.totalKm.toFixed(1) + ' km';
+  document.getElementById('sumCharges').textContent    = state.totalCharges + ' şarj';
+  document.getElementById('sumLastUpdate').textContent = state.updatedAt ? new Date(state.updatedAt).toLocaleString('tr-TR') : '—';
+
+  // Uyarı banner
+  renderWarnings(m, b, l, f);
+}
+
+function setCardClass(id, cls) {
+  const el = document.getElementById(id);
+  el.classList.remove('warn','danger');
+  if (cls) el.classList.add(cls);
+}
+
+function renderWarnings(m, b, l, f) {
+  const warns = [];
+  if (m.dur <= DANGER_THRESHOLD) warns.push(`⚙ MOTOR KRİTİK (${m.dur.toFixed(1)}) — bakım gerekli`);
+  else if (m.dur <= WARN_THRESHOLD) warns.push(`⚙ Motor düşük (${m.dur.toFixed(1)}) — yakında bakım`);
+  if (b.dur <= DANGER_THRESHOLD) warns.push(`🔋 BATARYA KRİTİK (${b.dur.toFixed(1)}) — değişim gerekli`);
+  else if (b.dur <= WARN_THRESHOLD) warns.push(`🔋 Batarya düşük (${b.dur.toFixed(1)}) — yakında değişim`);
+  if (l.dur <= DANGER_THRESHOLD) warns.push(`🛞 LASTİK KRİTİK (${l.dur.toFixed(1)}) — değişim gerekli`);
+  else if (l.dur <= WARN_THRESHOLD) warns.push(`🛞 Lastik düşük (${l.dur.toFixed(1)}) — yakında değişim`);
+  if (f.overdue || !state.fren.lastChange) warns.push('🔴 FREN DEĞİŞİMİ GECİKTİ — acil işlem');
+  const banner = document.getElementById('warnBanner');
+  if (warns.length) {
+    banner.style.display = 'block';
+    banner.innerHTML = warns.join('<br>');
+  } else {
+    banner.style.display = 'none';
+  }
+}
+
+// ════════════════════════════════════════
+//  SIFIRLAMA
+// ════════════════════════════════════════
+function resetComponent(comp) {
+  const labels = { motor:'Motor', lastik:'Lastikler', batarya:'Batarya', fren:'Fren' };
+  if (!confirm(`${labels[comp]} bakımını sıfırla? Bu işlem geri alınamaz.`)) return;
+
+  const now = new Date().toISOString();
+
+  if (comp === 'motor') {
+    state.motor.resetKm   = state.totalKm;
+    state.motor.resetDate = now;
+    showToast('⚙ Motor sıfırlandı');
+  } else if (comp === 'lastik') {
+    state.lastik.resetKm   = state.totalKm;
+    state.lastik.resetDate = now;
+    showToast('🛞 Lastikler sıfırlandı');
+  } else if (comp === 'batarya') {
+    state.batarya.resetCharges = state.totalCharges;
+    state.batarya.resetDate    = now;
+    showToast('🔋 Batarya sıfırlandı');
+  } else if (comp === 'fren') {
+    state.fren.lastChange = now;
+    showToast('🔴 Fren tarihi güncellendi');
+  }
+
+  renderAll();
+  saveToFirebase();
+}
+
+// ════════════════════════════════════════
+//  ARAÇ GEÇIŞ
+// ════════════════════════════════════════
+function switchCar(car) {
+  currentCar = car;
+  document.getElementById('loadingOverlay').style.display = 'flex';
+
+  // Tab stilleri
+  document.getElementById('tabNuna').classList.toggle('active', car === 'nuna');
+  document.getElementById('tabJoie').classList.toggle('active', car === 'joie');
+  document.getElementById('tabMgs').classList.toggle('active', car === 'mgs');
+
+  // Accent rengi
+  const accent = car === 'nuna' ? '#00e5ff' : car === 'joie' ? '#00ff88' : '#bf00ff';
+  document.documentElement.style.setProperty('--accent', accent);
+  document.documentElement.style.setProperty('--glow', car === 'nuna' ? 'rgba(0,229,255,.15)' : car === 'joie' ? 'rgba(0,255,136,.15)' : 'rgba(191,0,255,.15)');
+
+  document.getElementById('pageLabel').textContent =
+    car === 'nuna' ? '// OPEL NUNA — BAKIM TAKİBİ' : car === 'joie' ? '// JOİE LİTETRAX 4 — BAKIM TAKİBİ' : '// MİGAS MİRAGE PRO Z90 — BAKIM TAKİBİ';
+
+  loadFromFirebase();
+}
+
+// ════════════════════════════════════════
+//  YARDIMCI
+// ════════════════════════════════════════
+let toastTimer;
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg; t.classList.add('show');
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => t.classList.remove('show'), 3000);
+}
+
+function tick() {
+  document.getElementById('clock').textContent = new Date().toLocaleTimeString('tr-TR');
+}
+tick(); setInterval(tick, 1000);
+
+// Fren durumunu her dakika güncelle
+setInterval(() => { renderAll(); }, 60000);
+
+// ════════════════════════════════════════
+//  BAŞLAT
+// ════════════════════════════════════════
+window.addEventListener('load', () => {
+  loadFromFirebase();
+});
+</script>
+<script src="native.js"></script>
+</body>
+</html>
