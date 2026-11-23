@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html lang="tr" data-theme="dark">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>BATMON</title>
+<link rel="icon" type="image/svg+xml" href="logo.svg">
+<link rel="manifest" href="manifest.json">
+<link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=Barlow+Condensed:wght@300;400;600;700;900&display=swap" rel="stylesheet">
+<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore-compat.js"></script>
+<script src="firebase.js"></script>
+<style>
+:root{--bg:#07090c;--bg2:#10141a;--bg3:#161c25;--border:#1e2a38;--text:#c8d8e8;--text2:#6a8aaa;--text3:#3a5070;
+  --nuna:#ff3b3b;--joie:#d8c3a0;--green:#00ff88;--yellow:#ffcc00;--orange:#ff8800;--red:#ff3355;--cyan:#00e5ff;}
+*{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{background:var(--bg);color:var(--text);font-family:'Barlow Condensed',Arial Narrow,sans-serif}
+body{min-height:100vh;display:flex;flex-direction:column}
+.wrap{width:100%;max-width:720px;margin:0 auto;flex:1;display:flex;flex-direction:column}
+header{display:flex;align-items:center;justify-content:space-between;padding:14px 18px 12px;padding-top:max(14px,env(safe-area-inset-top))}
+.logo{display:flex;align-items:center;gap:10px;font:900 20px 'Barlow Condensed',sans-serif;letter-spacing:6px;color:#fff}
+.logo svg{flex:none}
+.meta{text-align:right;font:10px 'Share Tech Mono',monospace;letter-spacing:2px;color:var(--text3)}
+.meta b{display:block;color:var(--text2);font-weight:400;font-size:12px;margin-bottom:2px}
+
+.stripes{flex:1;display:flex;flex-direction:column}
+.stripe{position:relative;flex:1;min-height:270px;overflow:hidden;cursor:pointer;padding:16px 20px 18px;border-top:2px solid var(--col);
+  background:linear-gradient(160deg,color-mix(in srgb,var(--col) 17%,transparent),var(--bg) 72%);display:flex;flex-direction:column}
+.ghost{position:absolute;right:-8px;top:-6px;font:900 clamp(96px,30vw,150px) 'Barlow Condensed',sans-serif;letter-spacing:-4px;color:var(--col);opacity:.08;pointer-events:none;line-height:1}
+.lbl{position:relative;font:11px 'Share Tech Mono',monospace;letter-spacing:3px;color:var(--col);display:flex;justify-content:space-between;align-items:center}
+.lbl .st{color:var(--text3);font-size:9px}
+.pct{position:relative;font:900 clamp(68px,22vw,92px) 'Barlow Condensed',sans-serif;color:#fff;line-height:.95;margin:10px 0 2px}
+.pct small{font-size:.32em;color:var(--col);margin-left:3px}
+.kmleft{position:relative;font:11px 'Share Tech Mono',monospace;letter-spacing:2px;color:var(--text2)}
+.bat{position:relative;height:8px;background:var(--bg3);border:1px solid #2a3a50;margin:12px 0 0}
+.bat i{display:block;height:100%;width:0;background:var(--col);box-shadow:0 0 10px var(--col);transition:width .7s}
+.bars{position:relative;display:flex;gap:7px;margin:12px 0 14px}
+.bars div{flex:1}.bars span{display:block;font:9px 'Share Tech Mono',monospace;letter-spacing:1px;color:var(--text3);margin-bottom:3px;white-space:nowrap}
+.bars i{display:block;height:5px;background:#1b2633}.bars b{display:block;height:100%;width:0;background:var(--green);transition:width .7s}
+.charge{position:relative;margin-top:auto;width:100%;padding:14px;border:0;background:var(--col);color:#0a0c0f;font:900 16px 'Barlow Condensed',sans-serif;letter-spacing:3px;box-shadow:0 0 20px -4px var(--col);cursor:pointer}
+.charge.full{background:transparent;color:var(--col);border:1.5px solid var(--col);box-shadow:none;opacity:.75}
+.charge:disabled{opacity:.5}
+.toast{position:fixed;left:50%;transform:translateX(-50%);background:var(--bg2);border:1px solid var(--cyan);padding:11px 18px;font:11px 'Share Tech Mono',monospace;letter-spacing:2px;z-index:950;opacity:0;pointer-events:none;transition:opacity .25s;white-space:nowrap}
+.toast.show{opacity:1}.toast.err{border-color:var(--red);color:var(--red)}
+.nuna{--col:var(--nuna)}.joie{--col:var(--joie)}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <div class="logo">
+      <svg viewBox="0 0 100 100" width="24" height="24" xmlns="http://www.w3.org/2000/svg">
+        <rect x="4" y="28" width="80" height="44" rx="4" fill="none" stroke="#2a3a50" stroke-width="3"/>
+        <rect x="84" y="38" width="10" height="24" rx="2" fill="#2a3a50"/>
+        <rect x="8" y="32" width="52" height="36" rx="2" fill="rgba(0,255,136,.4)"/>
+        <polygon points="56,14 41,54 52,54 38,86 70,46 58,46 68,14" fill="#00e5ff" opacity=".9"/>
+      </svg>BATMON</div>
+    <div class="meta"><b id="clock">--:--</b><span id="sync">☁ —</span></div>
+  </header>
+
+  <div class="stripes">
+    <section class="stripe nuna" data-car="nuna" data-href="nuna/index.html">
+      <div class="ghost">NUNA</div>
+      <div class="lbl"><span>ARAÇ 01 · OPEL NUNA</span><span class="st" id="nunaSt"></span></div>
+      <div class="pct"><span id="nunaPct">--</span><small>%</small></div>
+      <div class="kmleft" id="nunaKm">YÜKLENİYOR…</div>
+      <div class="bat"><i id="nunaBat"></i></div>
+      <div class="bars" id="nunaBars"></div>
+      <button class="charge" id="nunaCharge" data-car="nuna">⚡ ŞARJ ET</button>
+    </section>
+    <section class="stripe joie" data-car="joie" data-href="joie/index.html">
+      <div class="ghost">JOİE</div>
+      <div class="lbl"><span>ARAÇ 02 · JOİE LİTETRAX 4</span><span class="st" id="joieSt"></span></div>
+      <div class="pct"><span id="joiePct">--</span><small>%</small></div>
+      <div class="kmleft" id="joieKm">YÜKLENİYOR…</div>
+      <div class="bat"><i id="joieBat"></i></div>
+      <div class="bars" id="joieBars"></div>
+      <button class="charge" id="joieCharge" data-car="joie">⚡ ŞARJ ET</button>
+    </section>
+  </div>
+</div>
+<div class="toast" id="toast"></div>
+
+<script>
+const CARS = { nuna:{max:30000, km:30}, joie:{max:100000, km:100} };
+const MOTOR_RATE=0.5, LASTIK_RATE=0.5, BATARYA_RATE=2;
+const S={}, M={}, ready={};            // durum, bakım, veri güvenilir mi
+
+const $ = id => document.getElementById(id);
+function toast(m, err){ const t=$('toast'); t.textContent=m; t.className='toast show'+(err?' err':''); clearTimeout(t._t); t._t=setTimeout(()=>t.className='toast',2200); }
+function rd(k){ try{ return JSON.parse(localStorage.getItem(k)); }catch(e){ return null; } }
+const ts = o => o && o.updatedAt ? new Date(o.updatedAt).getTime() : 0;
+
+function loadLocal(){
+  for(const c in CARS){
+    S[c]=rd('batmon_'+c); M[c]=rd('bakim_'+c);
+    if(S[c]) ready[c]=true;
+  }
+}
+
+function durColor(v){ return v>30?'var(--green)':v>15?'var(--yellow)':'var(--red)'; }
+function bar(label, pct, warn){
+  const p=Math.max(0,Math.min(100,pct));
+  return `<div><span>${label}${warn?' ⚠':''}</span><i><b style="width:${p}%;background:${durColor(p)}"></b></i></div>`;
+}
+
+function render(){
+  for(const c in CARS){
+    const s=S[c], m=M[c]||{}, max=CARS[c].max;
+    const remain = s && typeof s.remainS==='number' ? Math.min(max,s.remainS) : max;
+    const pc = Math.max(0,Math.round(remain/max*100));
+    $(c+'Pct').textContent = pc;
+    $(c+'Bat').style.width = pc+'%';
+    $(c+'Km').textContent = s ? `${(Math.max(0,remain)/1000).toFixed(1)} / ${CARS[c].km} KM KALDI` : 'KAYIT YOK · TAM DOLU';
+    const btn=$(c+'Charge'); btn.classList.toggle('full', pc>=100); btn.textContent = pc>=100?'✓ PİL DOLU':'⚡ ŞARJ ET';
+
+    const km = (s&&s.totalKm)||0, ch=(s&&s.totalCharges)||0;
+    const motor = 100-Math.max(0,km-((m.motor||{}).resetKm||0))*MOTOR_RATE;
+    const lastik= 100-Math.max(0,km-((m.lastik||{}).resetKm||0))*LASTIK_RATE;
+    const batar = 100-Math.max(0,ch-((m.batarya||{}).resetCharges||0))*BATARYA_RATE;
+    const last=(m.fren||{}).lastChange;
+    let fren=0, frenWarn=true;
+    if(last){ const l=new Date(last), next=new Date(l.getFullYear(),l.getMonth()+1,1);
+      const days=Math.ceil((next-new Date())/86400000); fren=Math.max(0,days/30*100); frenWarn=days<=7; }
+    $(c+'Bars').innerHTML = bar('MOTOR',motor,motor<=30)+bar('LASTİK',lastik,lastik<=30)+bar('BATARYA',batar,batar<=30)+bar('FREN',fren,frenWarn);
+  }
+}
+
+function setSync(t){ $('sync').textContent=t; }
+
+async function refresh(c){
+  try{
+    const [a,b] = await Promise.all([ fbGet(c,`batmon/${c}_state`), fbGet(c,`batmon/${c}_bakim`) ]);
+    if(a.exists()){ const r=a.val(); if(ts(r)>=ts(S[c])){ S[c]=r; localStorage.setItem('batmon_'+c, JSON.stringify(r)); } ready[c]=true; }
+    else ready[c]=true;
+    if(b.exists()){ const r=b.val(); if(ts(r)>=ts(M[c])){ M[c]=r; localStorage.setItem('bakim_'+c, JSON.stringify(r)); } }
+    return true;
+  }catch(e){ return false; }
+}
+async function refreshAll(){
+  const r = await Promise.all(Object.keys(CARS).map(refresh));
+  setSync(r.every(Boolean) ? '☁ SENKRON' : '☁ YEREL'); render();
+}
+
+async function charge(c){
+  const btn=$(c+'Charge'); btn.disabled=true;
+  try{
+    if(!await refresh(c) && !ready[c]){ toast('Veri alınamadı, bağlantıyı kontrol et',true); return; }
+    const max=CARS[c].max;
+    const s = S[c] || {remainS:max,totalUsedS:0,sessions:0,charges:0,totalKm:0,totalCharges:0,log:[],tripHistory:[]};
+    if(s.remainS>=max){ toast('Pil zaten tam dolu',true); return; }
+    s.remainS=max; s.charges=(s.charges||0)+1; s.totalCharges=s.charges;
+    (s.log=s.log||[]).push({type:'charge',action:'PİL ŞARJ EDİLDİ',detail:`→ ${(max/1000).toFixed(2)} km (${CARS[c].km}km)`,time:new Date().toLocaleTimeString('tr-TR')});
+    s.updatedAt=new Date().toISOString();
+    S[c]=s; localStorage.setItem('batmon_'+c, JSON.stringify(s)); render();
+    try{ await fbSet(c,`batmon/${c}_state`,s); toast('⚡ PİL TAMAMEN ŞARJ EDİLDİ'); }
+    catch(e){ toast('⚡ Şarj kaydedildi (bulut bağlantısı yok)'); }
+  } finally { btn.disabled=false; }
+}
+
+document.querySelectorAll('.stripe').forEach(el=>{
+  el.addEventListener('click',e=>{ if(e.target.closest('.charge')) return; location.href=el.dataset.href; });
+});
+document.querySelectorAll('.charge').forEach(b=>b.addEventListener('click',e=>{ e.stopPropagation(); charge(b.dataset.car); }));
+
+setInterval(()=>{ $('clock').textContent=new Date().toLocaleTimeString('tr-TR',{hour:'2-digit',minute:'2-digit'}); },1000);
+$('clock').textContent=new Date().toLocaleTimeString('tr-TR',{hour:'2-digit',minute:'2-digit'});
+
+loadLocal(); render(); refreshAll();
+document.addEventListener('visibilitychange',()=>{ if(!document.hidden){ loadLocal(); render(); refreshAll(); } });
+window.addEventListener('pageshow',()=>{ loadLocal(); render(); });
+setInterval(refreshAll,60000);
+</script>
+<script src="nav.js"></script>
+<script src="native.js"></script>
+</body>
+</html>

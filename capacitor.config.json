@@ -1,0 +1,10 @@
+{
+  "appId": "app.batmon.pil",
+  "appName": "BATMON",
+  "webDir": "www",
+  "backgroundColor": "#0a0c0f",
+  "plugins": {
+    "SplashScreen": { "launchShowDuration": 900, "backgroundColor": "#0a0c0f", "showSpinner": false, "androidScaleType": "CENTER_INSIDE" },
+    "StatusBar": { "style": "DARK", "backgroundColor": "#0a0c0f", "overlaysWebView": false }
+  }
+}

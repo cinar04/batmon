@@ -1,0 +1,74 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="512" height="512">
+  <defs>
+    <linearGradient id="bgGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#0a0c0f"/>
+      <stop offset="100%" style="stop-color:#10141a"/>
+    </linearGradient>
+    <linearGradient id="boltGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" style="stop-color:#00e5ff"/>
+      <stop offset="100%" style="stop-color:#0077aa"/>
+    </linearGradient>
+    <linearGradient id="battGrad" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" style="stop-color:#00ff88;stop-opacity:0.9"/>
+      <stop offset="100%" style="stop-color:#00cc66;stop-opacity:0.6"/>
+    </linearGradient>
+    <filter id="glow">
+      <feGaussianBlur stdDeviation="4" result="coloredBlur"/>
+      <feMerge><feMergeNode in="coloredBlur"/><feMergeNode in="SourceGraphic"/></feMerge>
+    </filter>
+    <filter id="boltGlow">
+      <feGaussianBlur stdDeviation="6" result="coloredBlur"/>
+      <feMerge><feMergeNode in="coloredBlur"/><feMergeNode in="SourceGraphic"/></feMerge>
+    </filter>
+  </defs>
+
+  <!-- Arka plan -->
+  <rect width="512" height="512" fill="url(#bgGrad)"/>
+
+  <!-- Köşe çizgileri (dekoratif) -->
+  <line x1="20" y1="20" x2="80" y2="20" stroke="#00e5ff" stroke-width="2" opacity="0.4"/>
+  <line x1="20" y1="20" x2="20" y2="80" stroke="#00e5ff" stroke-width="2" opacity="0.4"/>
+  <line x1="492" y1="20" x2="432" y2="20" stroke="#00e5ff" stroke-width="2" opacity="0.4"/>
+  <line x1="492" y1="20" x2="492" y2="80" stroke="#00e5ff" stroke-width="2" opacity="0.4"/>
+  <line x1="20" y1="492" x2="80" y2="492" stroke="#00e5ff" stroke-width="2" opacity="0.4"/>
+  <line x1="20" y1="492" x2="20" y2="432" stroke="#00e5ff" stroke-width="2" opacity="0.4"/>
+  <line x1="492" y1="492" x2="432" y2="492" stroke="#00e5ff" stroke-width="2" opacity="0.4"/>
+  <line x1="492" y1="492" x2="492" y2="432" stroke="#00e5ff" stroke-width="2" opacity="0.4"/>
+
+  <!-- Pil gövdesi -->
+  <rect x="72" y="180" width="330" height="152" rx="8" ry="8"
+        fill="none" stroke="#1e2a38" stroke-width="3"/>
+  <!-- Pil ucu -->
+  <rect x="402" y="216" width="28" height="80" rx="4" ry="4"
+        fill="#1e2a38"/>
+
+  <!-- Pil doluluk (yeşil bar) -->
+  <rect x="80" y="188" width="230" height="136" rx="4" ry="4"
+        fill="url(#battGrad)" opacity="0.85" filter="url(#glow)"/>
+
+  <!-- Pil çizgi dokusu -->
+  <clipPath id="battClip">
+    <rect x="80" y="188" width="230" height="136" rx="4"/>
+  </clipPath>
+  <g clip-path="url(#battClip)" opacity="0.15">
+    <line x1="80" y1="188" x2="310" y2="324" stroke="#000" stroke-width="8"/>
+    <line x1="110" y1="188" x2="340" y2="324" stroke="#000" stroke-width="8"/>
+    <line x1="140" y1="188" x2="310" y2="294" stroke="#000" stroke-width="8"/>
+    <line x1="50" y1="188" x2="280" y2="324" stroke="#000" stroke-width="8"/>
+  </g>
+
+  <!-- Şimşek bolt (ana ikon) -->
+  <polygon points="280,140 230,268 268,268 232,372 320,228 278,228 310,140"
+           fill="url(#boltGrad)" filter="url(#boltGlow)"/>
+  <!-- Şimşek outline -->
+  <polygon points="280,140 230,268 268,268 232,372 320,228 278,228 310,140"
+           fill="none" stroke="#00e5ff" stroke-width="2" opacity="0.6"/>
+
+  <!-- Alt yazı -->
+  <text x="256" y="420" text-anchor="middle"
+        font-family="monospace" font-size="28" font-weight="bold"
+        letter-spacing="8" fill="#00e5ff" opacity="0.9">BATMON</text>
+  <text x="256" y="448" text-anchor="middle"
+        font-family="monospace" font-size="13" letter-spacing="4"
+        fill="#3a5070">NUNA · POWER TRACKER</text>
+</svg>
