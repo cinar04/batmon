@@ -10,10 +10,10 @@
   const CARS = { nuna:'Opel Nuna', joie:'Joie Litetrax 4' };
   const WARN = 30, DANGER = 15, EVERY_MS = 15 * 60 * 1000;
   const UPDATE_URL = 'https://batmon.web.app/version.json';
-  const DATA_SYNC = 1, LOCATION = 8;
+  const DATA_SYNC = 1;
   const P = n => Capacitor.registerPlugin(n);
   const FGS = P('ForegroundService'), LN = P('LocalNotifications'), App = P('App'),
-        SB = P('StatusBar'), Geo = P('Geolocation');
+        SB = P('StatusBar'), Geo = P('Geolocation');  // Geo yalnızca izin için
   const ls = { get:k => { try { return localStorage.getItem(k); } catch(e){ return null; } },
                set:(k,v) => { try { localStorage.setItem(k,v); } catch(e){} } };
   const toast = (m, err) => (typeof showToast === 'function') ? showToast(m, err) : console.log(m);
@@ -103,63 +103,58 @@
       body: 'Araç bakım uyarıları arka planda izleniyor', smallIcon: 'ic_stat_batmon', serviceType: DATA_SYNC });
   }
 
-  // ───────── GPS ile otomatik km ─────────
+  // ───────── GPS ile otomatik km (yerel servis · Google/HMS gerekmez) ─────────
+  const Trip = P('Trip');
   const carKey = Object.keys(CARS).find(c => location.pathname.indexOf('/' + c + '/') >= 0);
+  const CAR_COLOR = { nuna: 0xFFFF3B3B, joie: 0xFFD8C3A0 };
   const hasUsage = () => typeof addUsage === 'function' && document.getElementById('useInput');
-  let watchId = null, trip = null;
+  let poll = null, tripOn = false;
 
-  const rad = x => x * Math.PI / 180;
-  function dist(a, b) { // metre (haversine)
-    const R = 6371000, dLa = rad(b.lat - a.lat), dLo = rad(b.lon - a.lon);
-    const h = Math.sin(dLa/2)**2 + Math.cos(rad(a.lat)) * Math.cos(rad(b.lat)) * Math.sin(dLo/2)**2;
-    return 2 * R * Math.asin(Math.sqrt(h));
-  }
-  function saveTrip() { ls.set('batmon_trip', JSON.stringify(trip)); }
-  function paint() {
-    window.dispatchEvent(new CustomEvent('batmon-trip', { detail: { active: !!trip, km: trip ? trip.m / 1000 : 0 } }));
-  }
-  function onPos(pos) {
-    if (!pos || !trip) return;
-    const c = pos.coords;
-    if (c.accuracy > 25) return;                        // zayıf sinyal
-    const p = { lat: c.latitude, lon: c.longitude, t: pos.timestamp };
-    if (trip.last) {
-      const d = dist(trip.last, p), dt = Math.max(1, (p.t - trip.last.t) / 1000);
-      if (d < Math.max(4, c.accuracy * 0.4)) return;    // titreme
-      if (d / dt > 15) { trip.last = p; return; }       // GPS sıçraması (>54 km/s)
-      trip.m += d;
-    }
-    trip.last = p; saveTrip(); paint();
-  }
-  async function startTrip(resume) {
-    if (!resume) {
-      const perm = await Geo.requestPermissions({ permissions: ['location'] }).catch(() => null);
-      if (!perm || perm.location === 'denied') { toast('Konum izni gerekli', true); return; }
-      trip = { car: carKey, m: 0, last: null }; saveTrip();
-    }
-    try {
-      await FGS.startForegroundService({ id: 1001, title: 'BATMON · GPS yolculuk',
-        body: CARS[carKey] + ' — mesafe ölçülüyor', smallIcon: 'ic_stat_batmon', serviceType: LOCATION });
-    } catch (e) { console.warn(e); }
-    watchId = await Geo.watchPosition({ enableHighAccuracy: true, timeout: 20000 }, (pos, err) => { if (!err) onPos(pos); });
-    paint(); if (!resume) toast('📍 Yolculuk başladı');
-  }
-  async function stopTrip() {
-    if (watchId) { await Geo.clearWatch({ id: watchId }).catch(()=>{}); watchId = null; }
-    const km = Math.round(trip.m / 10) / 100;
-    trip = null; ls.set('batmon_trip', ''); paint();
-    baseService().catch(()=>{});
+  const paint = (active, km) =>
+    window.dispatchEvent(new CustomEvent('batmon-trip', { detail: { active: !!active, km: km || 0 } }));
+
+  async function finishTrip() {              // sonucu teslim al ve sayfanın kullanım kaydına ekle
+    stopPoll(); tripOn = false;
+    let r = { km: 0 };
+    try { r = await Trip.stop(); } catch (e) {}
+    paint(false, 0);
+    baseService().catch(() => {});
+    const km = Math.round((r.km || 0) * 100) / 100;
+    if (r.car && r.car !== carKey) return;
     if (km < 0.05) { toast('Mesafe çok kısa, kaydedilmedi', true); return; }
     document.getElementById('useInput').value = km;
     document.getElementById('descInput').value = 'GPS yolculuk';
     document.getElementById('useInput').dispatchEvent(new Event('input', { bubbles: true }));
-    addUsage();                                         // sayfanın kendi kullanım kaydı
+    addUsage();                              // sayfanın kendi kullanım kaydı
   }
-  function initGps() {
+  function stopPoll() { if (poll) { clearInterval(poll); poll = null; } }
+  function startPoll() {
+    stopPoll();
+    poll = setInterval(async () => {
+      try {
+        const s = await Trip.state();
+        if (s.active) paint(true, s.km);
+        else { if (s.pending) await finishTrip(); else { stopPoll(); tripOn = false; paint(false, 0); } }
+      } catch (e) {}
+    }, 1500);
+  }
+  async function startTrip() {
+    const perm = await Geo.requestPermissions({ permissions: ['location'] }).catch(() => null);
+    if (!perm || perm.location === 'denied') { toast('Konum izni gerekli', true); return; }
+    try {
+      await Trip.start({ car: carKey, name: CARS[carKey], remainKm: Math.max(0, state.remainS) / 1000,
+        maxKm: MAX_S / 1000, color: CAR_COLOR[carKey] | 0 });
+    } catch (e) { toast(String((e && e.message) || e), true); return; }
+    tripOn = true; paint(true, 0); startPoll(); toast('📍 Yolculuk başladı · kilit ekranında canlı');
+  }
+  async function initGps() {
     if (!carKey || !hasUsage()) return;
-    window.batmonTripToggle = () => trip ? stopTrip() : startTrip(false);
-    try { const t = JSON.parse(ls.get('batmon_trip') || 'null'); if (t && t.car === carKey) { trip = t; startTrip(true); } } catch (e) {}
-    paint();
+    window.batmonTripToggle = () => tripOn ? finishTrip() : startTrip();
+    try {
+      const s = await Trip.state();
+      if (s.active && s.car === carKey) { tripOn = true; paint(true, s.km); startPoll(); }
+      else if (s.pending && s.car === carKey) await finishTrip();   // bildirimden durdurulmuş yolculuk
+    } catch (e) {}
   }
 
   // ───────── Başlat ─────────
@@ -167,7 +162,7 @@
     try {
       await LN.requestPermissions();
       await FGS.requestPermissions();
-      if (!trip) await baseService();
+      await baseService();
     } catch (e) { console.warn('Servis başlatılamadı:', e); }
     check(); checkUpdate();
     setInterval(check, EVERY_MS); setInterval(checkUpdate, 6 * 3600e3);

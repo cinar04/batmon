@@ -35,6 +35,7 @@
         </provider>
         <receiver android:name="io.capawesome.capacitorjs.plugins.foregroundservice.NotificationActionBroadcastReceiver" />
         <service android:name="io.capawesome.capacitorjs.plugins.foregroundservice.AndroidForegroundService" android:foregroundServiceType="dataSync|location" />
+        <service android:name=".TripService" android:exported="false" android:foregroundServiceType="location" />
     </application>
 
     <!-- Permissions -->

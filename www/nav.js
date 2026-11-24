@@ -16,6 +16,14 @@
   #bmNav{position:fixed;left:0;right:0;bottom:0;z-index:900;display:flex;background:#0b0e13;border-top:1px solid #1e2a38;padding-bottom:env(safe-area-inset-bottom);}
   #bmNav a{flex:1;text-align:center;padding:16px 0 15px;font:900 13px 'Barlow Condensed',Arial,sans-serif;letter-spacing:3px;text-decoration:none;color:var(--c);opacity:.5;border-top:2px solid transparent;margin-top:-1px;transition:opacity .15s;}
   #bmNav a.on{opacity:1;border-top-color:var(--c);background:linear-gradient(color-mix(in srgb,var(--c) 14%,transparent),transparent);}
+  body{animation:bmFade .35s ease-out both;}
+  @keyframes bmFade{from{opacity:0}to{opacity:1}}
+  #bmNav{animation:bmUp .45s cubic-bezier(.2,.8,.2,1) both;}
+  @keyframes bmUp{from{transform:translateY(100%)}to{transform:none}}
+  #bmNav a:active{transform:scale(.93);}
+  #bmNav a.on{animation:bmGlow .5s ease-out;}
+  @keyframes bmGlow{from{background-color:transparent;letter-spacing:6px}to{letter-spacing:3px}}
+  @media (prefers-reduced-motion:reduce){*,*::before,*::after{animation:none!important;transition:none!important}}
   body{padding-bottom:calc(58px + env(safe-area-inset-bottom) + var(--bm-extra,0px)) !important;}
   ${cur === 'bakim' ? '' : '.toast{bottom:calc(74px + var(--bm-extra,0px)) !important;}'}`;
   document.head.appendChild(css);

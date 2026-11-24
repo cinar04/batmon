@@ -14,3 +14,11 @@
 
 ## .github klasörü yüklenmediyse
 Actions sekmesi boşsa: repoda Add file → Create new file → dosya adı `.github/workflows/apk.yml` → `apk-workflow-yedek.yml` dosyasının içeriğini yapıştır → Commit.
+
+## Huawei P40 Lite (EMUI) için ayarlar
+Google servisleri olmayan Huawei'lerde konum ve bildirim çalışması için:
+1. Ayarlar → Uygulamalar → BATMON → İzinler → Konum: **"Uygulama kullanılırken izin ver"** (ya da "her zaman").
+2. Ayarlar → Bildirimler → BATMON → **Kilit ekranı bildirimleri: Açık**, "Canlı yolculuk" kanalı açık.
+3. Ayarlar → Pil → Uygulama başlatma → BATMON → **Manuel yönet** → üç seçeneği de aç (otomatik başlat, ikincil başlat, arka planda çalıştır).
+4. Telefonun Konum (GPS) anahtarı açık olmalı.
+Yolculuk bildirimi: mesafe, süre (canlı sayaç), pil çubuğu ve DURDUR düğmesi kilit ekranında görünür.
