@@ -48,7 +48,8 @@
   hero.innerHTML = `<div class="ghost">${C.ghost}</div><div class="lbl">ARAÇ ${C.no} · ${C.name}</div>
     <div class="row"><div class="pct"><span id="vhPct">--</span><small>%</small></div><div class="km" id="vhKm">—</div></div>
     <div class="bar"><i id="vhBar" style="width:0"></i></div>
-    <div class="btns"><button id="vhAdd">＋ KM</button>${NATIVE ? '<button id="vhGps">📍 YOLCULUK</button>' : ''}<button id="vhMap">⊕ HARİTA</button></div>`;
+    <div class="btns"><button id="vhAdd">＋ KM</button>${NATIVE ? '<button id="vhGps">📍 YOLCULUK</button>' : ''}<button id="vhMap">⊕ HARİTA</button></div>
+    <div id="vhStatus" style="position:relative;margin-top:10px;font:11px 'Share Tech Mono',monospace;letter-spacing:1px;color:var(--text2);min-height:14px"></div>`;
   const main = document.querySelector('.main'); main.parentNode.insertBefore(hero, main);
 
   const bar = document.createElement('button'); bar.id = 'chargeBar'; bar.textContent = '⚡ ŞARJ ET';
@@ -57,7 +58,12 @@
   document.getElementById('vhAdd').onclick = () => { const i = document.getElementById('useInput'); i.scrollIntoView({ block: 'center', behavior: 'smooth' }); setTimeout(() => i.focus(), 350); };
   document.getElementById('vhMap').onclick = () => enterKiosk();
   const gps = document.getElementById('vhGps');
-  if (gps) gps.onclick = () => window.batmonTripToggle && window.batmonTripToggle();
+  if (gps) gps.onclick = () => {
+    const st = document.getElementById('vhStatus');
+    if (!window.batmonTripToggle) { st.style.color = '#ff3355'; st.textContent = '✕ Yolculuk servisi yüklenmedi (native.js çalışmadı)'; return; }
+    st.style.color = ''; st.textContent = '⏳ Başlatılıyor…';
+    Promise.resolve(window.batmonTripToggle()).catch(e => { st.style.color = '#ff3355'; st.textContent = '✕ ' + ((e && e.message) || e); });
+  };
   window.addEventListener('batmon-trip', e => {
     if (!gps) return;
     const d = e.detail || {};

@@ -16,6 +16,13 @@
         SB = P('StatusBar'), Geo = P('Geolocation');  // Geo yalnızca izin için
   const ls = { get:k => { try { return localStorage.getItem(k); } catch(e){ return null; } },
                set:(k,v) => { try { localStorage.setItem(k,v); } catch(e){} } };
+  const say = (m, err) => {
+    const el = document.getElementById('vhStatus');
+    if (el) { el.textContent = m; el.style.color = err ? '#ff3355' : ''; }
+    console.log('[BATMON]', m);
+  };
+  window.addEventListener('error', e => say('✕ Hata: ' + e.message, true));
+  window.addEventListener('unhandledrejection', e => say('✕ Hata: ' + ((e.reason && e.reason.message) || e.reason), true));
   const toast = (m, err) => (typeof showToast === 'function') ? showToast(m, err) : console.log(m);
 
   // ───────── Durum çubuğu + geri tuşu ─────────
@@ -139,13 +146,19 @@
     }, 1500);
   }
   async function startTrip() {
-    const perm = await Geo.requestPermissions({ permissions: ['location'] }).catch(() => null);
-    if (!perm || perm.location === 'denied') { toast('Konum izni gerekli', true); return; }
     try {
+      say('⏳ Konum izni isteniyor…');
+      let perm = null;
+      try { perm = await Geo.requestPermissions({ permissions: ['location'] }); }
+      catch (e) { say('✕ İzin istenemedi: ' + ((e && e.message) || e) + ' — konum (GPS) açık mı?', true); return; }
+      if (!perm || perm.location === 'denied') { say('✕ Konum izni reddedildi — uygulama ayarlarından izin ver', true); return; }
+      say('⏳ İzin: ' + perm.location + ' · servis başlatılıyor…');
       await Trip.start({ car: carKey, name: CARS[carKey], remainKm: Math.max(0, state.remainS) / 1000,
         maxKm: MAX_S / 1000, color: CAR_COLOR[carKey] | 0 });
-    } catch (e) { toast(String((e && e.message) || e), true); return; }
-    tripOn = true; paint(true, 0); startPoll(); toast('📍 Yolculuk başladı · kilit ekranında canlı');
+      tripOn = true; paint(true, 0); startPoll();
+      say('✓ Yolculuk başladı — bildirim çubuğunu ve kilit ekranını kontrol et');
+      toast('📍 Yolculuk başladı');
+    } catch (e) { say('✕ ' + String((e && e.message) || e), true); }
   }
   async function initGps() {
     if (!carKey || !hasUsage()) return;
