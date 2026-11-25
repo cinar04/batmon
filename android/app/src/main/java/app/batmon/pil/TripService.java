@@ -15,8 +15,15 @@ import android.location.LocationManager;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.IBinder;
+import android.media.AudioAttributes;
+import android.media.RingtoneManager;
+import android.net.Uri;
 import android.os.Looper;
+import android.os.VibrationEffect;
+import android.os.Vibrator;
 import androidx.core.app.NotificationCompat;
+import java.io.File;
+import java.io.FileWriter;
 import java.util.Locale;
 
 /**
@@ -42,6 +49,11 @@ public class TripService extends Service implements LocationListener {
     private double maxKm = 1;
     private int color = 0xFFFF3B3B;
     private boolean listening;
+    private int[] levels = new int[0];
+    private boolean[] fired = new boolean[0];
+    private boolean alertsOn = true;
+    private FileWriter trackOut;
+    static final String ALERT_CHANNEL = "batmon_critical";
 
     @Override
     public void onCreate() {
@@ -54,7 +66,7 @@ public class TripService extends Service implements LocationListener {
     public int onStartCommand(Intent intent, int flags, int startId) {
         if (intent != null && ACTION_STOP.equals(intent.getAction())) {
             // Bildirimdeki DURDUR: sonucu uygulama açılınca kaydetmek için beklemeye al
-            sp.edit().putBoolean("active", false).putBoolean("pending", sp.getFloat("meters", 0f) > 0f).apply();
+            sp.edit().putBoolean("active", false).putBoolean("pending", sp.getFloat("meters", 0f) > 0f).putLong("endMs", System.currentTimeMillis()).apply();
             shutdown();
             return START_NOT_STICKY;
         }
@@ -67,7 +79,12 @@ public class TripService extends Service implements LocationListener {
             meters = 0;
             last = null;
             startMs = System.currentTimeMillis();
+            alertsOn = intent.getBooleanExtra("alerts", true);
+            parseLevels(nz(intent.getStringExtra("levels")));
+            resetFired();
+            openTrack(false);
             sp.edit().putBoolean("active", true).putBoolean("pending", false).putString("car", car)
+                .putString("levels", nz(intent.getStringExtra("levels"))).putBoolean("alerts", alertsOn).putLong("endMs", 0L)
                 .putString("name", name).putFloat("remainKm", (float) remainKm).putFloat("maxKm", (float) maxKm)
                 .putInt("color", color).putFloat("meters", 0f).putLong("startMs", startMs).apply();
         } else {
@@ -83,6 +100,10 @@ public class TripService extends Service implements LocationListener {
             color = sp.getInt("color", 0xFFFF3B3B);
             meters = sp.getFloat("meters", 0f);
             startMs = sp.getLong("startMs", System.currentTimeMillis());
+            alertsOn = sp.getBoolean("alerts", true);
+            parseLevels(nz(sp.getString("levels", "")));
+            resetFired();
+            openTrack(true);
         }
         createChannel();
         Notification n = buildNotification();
@@ -128,11 +149,125 @@ public class TripService extends Service implements LocationListener {
         }
         last = l;
         sp.edit().putFloat("meters", (float) meters).apply();
+        writePoint(l);
+        checkCritical();
         long now = System.currentTimeMillis();
         if (now - lastNotifyMs >= 1500) {
             lastNotifyMs = now;
             NotificationManager nm = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
             if (nm != null) nm.notify(NID, buildNotification());
+        }
+    }
+
+    // ───────── Kritik pil uyarısı ─────────
+    private void parseLevels(String csv) {
+        java.util.ArrayList<Integer> list = new java.util.ArrayList<Integer>();
+        for (String p : csv.split(",")) {
+            try {
+                int v = Integer.parseInt(p.trim());
+                if (v > 0 && v < 100) list.add(v);
+            } catch (Exception ignored) {
+            }
+        }
+        levels = new int[list.size()];
+        for (int i = 0; i < levels.length; i++) levels[i] = list.get(i);
+    }
+
+    private int currentPct() {
+        double remain = Math.max(0.0, remainKm - meters / 1000.0);
+        return (int) Math.round(Math.min(100.0, remain / maxKm * 100.0));
+    }
+
+    private void resetFired() {
+        fired = new boolean[levels.length];
+        int pct = currentPct();
+        for (int i = 0; i < levels.length; i++) fired[i] = pct <= levels[i]; // zaten geçilmiş eşikler tekrar çalmasın
+    }
+
+    private void checkCritical() {
+        if (!alertsOn) return;
+        int pct = currentPct();
+        for (int i = 0; i < levels.length; i++) {
+            if (!fired[i] && pct <= levels[i]) {
+                fired[i] = true;
+                fireAlert(pct, levels[i]);
+            }
+        }
+    }
+
+    private void fireAlert(int pct, int level) {
+        NotificationManager nm = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
+        if (nm == null) return;
+        long[] pattern = new long[] {0, 500, 200, 500, 200, 900};
+        Uri sound = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION);
+        if (Build.VERSION.SDK_INT >= 26 && nm.getNotificationChannel(ALERT_CHANNEL) == null) {
+            NotificationChannel ch = new NotificationChannel(ALERT_CHANNEL, "Kritik pil uyarısı", NotificationManager.IMPORTANCE_HIGH);
+            ch.setDescription("Pil kritik seviyeye düşünce sesli ve titreşimli uyarı");
+            ch.enableVibration(true);
+            ch.setVibrationPattern(pattern);
+            ch.setLockscreenVisibility(Notification.VISIBILITY_PUBLIC);
+            AudioAttributes aa = new AudioAttributes.Builder()
+                .setUsage(AudioAttributes.USAGE_NOTIFICATION)
+                .setContentType(AudioAttributes.CONTENT_TYPE_SONIFICATION).build();
+            ch.setSound(sound, aa);
+            nm.createNotificationChannel(ch);
+        }
+        Intent open = getPackageManager().getLaunchIntentForPackage(getPackageName());
+        PendingIntent pi = PendingIntent.getActivity(this, 2, open, PendingIntent.FLAG_IMMUTABLE | PendingIntent.FLAG_UPDATE_CURRENT);
+        Notification n = new NotificationCompat.Builder(this, ALERT_CHANNEL)
+            .setSmallIcon(R.drawable.ic_stat_batmon)
+            .setContentTitle("⚠ " + name + " pil %" + pct)
+            .setContentText(level <= 5 ? "Pil bitmek üzere — hemen şarja tak" : "Pil kritik seviyede — şarja tak")
+            .setPriority(NotificationCompat.PRIORITY_MAX)
+            .setCategory(NotificationCompat.CATEGORY_ALARM)
+            .setVisibility(NotificationCompat.VISIBILITY_PUBLIC)
+            .setVibrate(pattern)
+            .setSound(sound)
+            .setColor(0xFFFF3355)
+            .setAutoCancel(true)
+            .setContentIntent(pi)
+            .build();
+        nm.notify(3100 + level, n);
+        try {
+            Vibrator v = (Vibrator) getSystemService(Context.VIBRATOR_SERVICE);
+            if (v != null) {
+                if (Build.VERSION.SDK_INT >= 26) v.vibrate(VibrationEffect.createWaveform(pattern, -1));
+                else v.vibrate(pattern, -1);
+            }
+        } catch (Exception ignored) {
+        }
+    }
+
+    // ───────── GPS izi (dosyaya) ─────────
+    static File trackFile(Context c) {
+        return new File(c.getFilesDir(), "trip_track.txt");
+    }
+
+    private void openTrack(boolean append) {
+        try {
+            closeTrack();
+            trackOut = new FileWriter(trackFile(this), append);
+        } catch (Exception e) {
+            trackOut = null;
+        }
+    }
+
+    private void writePoint(Location l) {
+        if (trackOut == null) return;
+        try {
+            trackOut.write(String.format(Locale.US, "%.5f,%.5f\n", l.getLatitude(), l.getLongitude()));
+            trackOut.flush();
+        } catch (Exception ignored) {
+        }
+    }
+
+    private void closeTrack() {
+        if (trackOut != null) {
+            try {
+                trackOut.close();
+            } catch (Exception ignored) {
+            }
+            trackOut = null;
         }
     }
 
@@ -197,6 +332,7 @@ public class TripService extends Service implements LocationListener {
 
     @Override
     public void onDestroy() {
+        closeTrack();
         if (lm != null && listening) {
             try {
                 lm.removeUpdates(this);

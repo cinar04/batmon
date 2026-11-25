@@ -5,6 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>BATMON — BAKIM TAKİBİ</title>
 <link rel="icon" type="image/svg+xml" href="logo.svg">
+<script src="settings.js"></script>
 <link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=Barlow+Condensed:wght@300;400;600;700;900&display=swap" rel="stylesheet">
 <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore-compat.js"></script>
@@ -341,13 +342,14 @@ body{background:var(--bg);color:var(--text);font-family:'Barlow Condensed',sans-
 // ════════════════════════════════════════
 //  SABİTLER
 // ════════════════════════════════════════
-const MOTOR_RATE   = 0.5;  // dayanıklılık / km
-const LASTIK_RATE  = 0.5;  // dayanıklılık / km
-const BATARYA_RATE = 2;    // dayanıklılık / şarj
+const BS = window.BATMON_SETTINGS;
+const MOTOR_RATE   = BS.rate.motor;  // dayanıklılık / km (Ayarlar)
+const LASTIK_RATE  = BS.rate.lastik;  // dayanıklılık / km
+const BATARYA_RATE = BS.rate.batarya;    // dayanıklılık / şarj
 
 // Uyarı eşikleri
-const WARN_THRESHOLD   = 30;
-const DANGER_THRESHOLD = 15;
+const WARN_THRESHOLD   = BS.thr.warn;
+const DANGER_THRESHOLD = BS.thr.danger;
 
 // ════════════════════════════════════════
 //  STATE

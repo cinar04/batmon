@@ -9,6 +9,7 @@
 <link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=Barlow+Condensed:wght@300;400;600;700;900&display=swap" rel="stylesheet">
 <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore-compat.js"></script>
+<script src="settings.js"></script>
 <script src="firebase.js"></script>
 <style>
 :root{--bg:#07090c;--bg2:#10141a;--bg3:#161c25;--border:#1e2a38;--text:#c8d8e8;--text2:#6a8aaa;--text3:#3a5070;
@@ -99,8 +100,9 @@ header{animation:hIn .6s ease-out both}@keyframes hIn{from{opacity:0;transform:t
 <div class="toast" id="toast"></div>
 
 <script>
-const CARS = { nuna:{max:30000, km:30}, joie:{max:100000, km:100} };
-const MOTOR_RATE=0.5, LASTIK_RATE=0.5, BATARYA_RATE=2;
+const BS = window.BATMON_SETTINGS;
+const CARS = { nuna:{max:BS.nuna.km*1000, km:BS.nuna.km}, joie:{max:BS.joie.km*1000, km:BS.joie.km} };
+const MOTOR_RATE=BS.rate.motor, LASTIK_RATE=BS.rate.lastik, BATARYA_RATE=BS.rate.batarya;
 const S={}, M={}, ready={};            // durum, bakım, veri güvenilir mi
 
 const $ = id => document.getElementById(id);
@@ -115,7 +117,7 @@ function loadLocal(){
   }
 }
 
-function durColor(v){ return v>30?'var(--green)':v>15?'var(--yellow)':'var(--red)'; }
+function durColor(v){ return v>BS.thr.warn?'var(--green)':v>BS.thr.danger?'var(--yellow)':'var(--red)'; }
 function bar(label, pct, warn){
   const p=Math.max(0,Math.min(100,pct));
   return `<div><span>${label}${warn?' ⚠':''}</span><i><b style="width:${p}%;background:${durColor(p)}"></b></i></div>`;
@@ -150,7 +152,7 @@ function render(){
     let fren=0, frenWarn=true;
     if(last){ const l=new Date(last), next=new Date(l.getFullYear(),l.getMonth()+1,1);
       const days=Math.ceil((next-new Date())/86400000); fren=Math.max(0,days/30*100); frenWarn=days<=7; }
-    $(c+'Bars').innerHTML = bar('MOTOR',motor,motor<=30)+bar('LASTİK',lastik,lastik<=30)+bar('BATARYA',batar,batar<=30)+bar('FREN',fren,frenWarn);
+    $(c+'Bars').innerHTML = bar('MOTOR',motor,motor<=BS.thr.warn)+bar('LASTİK',lastik,lastik<=BS.thr.warn)+bar('BATARYA',batar,batar<=BS.thr.warn)+bar('FREN',fren,frenWarn);
     if(!firstDone) animateBars(c);
   }
 }

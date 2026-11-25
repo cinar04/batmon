@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="tr" data-theme="dark">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>BATMON · Ayarlar</title>
+<link rel="icon" type="image/svg+xml" href="logo.svg">
+<script src="settings.js"></script>
+<link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=Barlow+Condensed:wght@400;600;700;900&display=swap" rel="stylesheet">
+<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore-compat.js"></script>
+<script src="firebase.js"></script>
+<style>
+:root{--bg:#07090c;--bg2:#10141a;--bg3:#161c25;--border:#1e2a38;--text:#c8d8e8;--text2:#6a8aaa;--text3:#3a5070;--cyan:#00e5ff;--green:#00ff88;--red:#ff3355;--yellow:#ffcc00;--orange:#ff8800}
+*{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+body{background:var(--bg);color:var(--text);font-family:'Barlow Condensed',Arial Narrow,sans-serif;min-height:100vh}
+.wrap{max-width:640px;margin:0 auto;padding:max(16px,env(safe-area-inset-top)) 16px 20px}
+h1{font:900 22px 'Barlow Condensed',sans-serif;letter-spacing:6px;color:#fff;margin:6px 0 4px}
+.sub{font:10px 'Share Tech Mono',monospace;letter-spacing:2px;color:var(--text3);margin-bottom:18px}
+.sec{background:var(--bg2);border:1px solid var(--border);border-top:2px solid var(--c,var(--cyan));padding:14px;margin-bottom:14px;animation:up .5s both}
+.sec h2{font:700 13px 'Share Tech Mono',monospace;letter-spacing:3px;color:var(--c,var(--cyan));margin-bottom:12px}
+@keyframes up{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:none}}
+.row{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:9px 0;border-bottom:1px solid #1a2431}
+.row:last-child{border-bottom:0}.row label{font:600 15px 'Barlow Condensed',sans-serif;letter-spacing:1px;color:var(--text)}.row small{display:block;font:10px 'Share Tech Mono',monospace;color:var(--text3);letter-spacing:1px;margin-top:2px}
+input[type=number],input[type=text]{width:104px;background:var(--bg3);border:1px solid #2a3a50;color:#fff;padding:9px 10px;font:700 16px 'Barlow Condensed',sans-serif;text-align:right}
+input:focus{outline:none;border-color:var(--cyan)}
+.sw{position:relative;width:48px;height:26px;flex:none}.sw input{display:none}.sw span{position:absolute;inset:0;background:#1b2633;border:1px solid #2a3a50;transition:.2s}
+.sw span:before{content:'';position:absolute;left:3px;top:3px;width:18px;height:18px;background:var(--text3);transition:.2s}.sw input:checked+span{background:#00e5ff22;border-color:var(--cyan)}.sw input:checked+span:before{transform:translateX(22px);background:var(--cyan)}
+.btn{width:100%;padding:14px;border:0;background:var(--cyan);color:#07090c;font:900 15px 'Barlow Condensed',sans-serif;letter-spacing:3px;cursor:pointer;transition:transform .12s}.btn:active{transform:scale(.98)}
+.btn.o{background:transparent;color:var(--cyan);border:1.5px solid var(--cyan)}.btn.d{background:transparent;color:var(--text2);border:1px solid #2a3a50}
+.btns{display:flex;gap:10px;margin-top:10px}.btns .btn{flex:1}
+.msg{font:11px 'Share Tech Mono',monospace;letter-spacing:1px;color:var(--text2);margin-top:10px;min-height:14px;line-height:1.5}
+.prog{height:8px;background:#1b2633;margin-top:10px;display:none}.prog i{display:block;height:100%;width:0;background:var(--green);box-shadow:0 0 10px var(--green);transition:width .3s}
+.toast{position:fixed;left:50%;transform:translateX(-50%);bottom:84px;background:var(--bg2);border:1px solid var(--cyan);padding:11px 18px;font:11px 'Share Tech Mono',monospace;letter-spacing:2px;z-index:950;opacity:0;pointer-events:none;transition:opacity .25s;white-space:nowrap}.toast.show{opacity:1}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>AYARLAR</h1><div class="sub">// KAPASİTE · BAKIM · UYARILAR · GÜNCELLEME</div>
+
+  <div class="sec" style="--c:#ff3b3b"><h2>ARAÇLAR · PİL KAPASİTESİ</h2>
+    <div class="row"><label>Opel Nuna<small>tam şarjda gidilen km</small></label><input type="number" id="nunaKm" min="1" step="1"></div>
+    <div class="row"><label>Joie Litetrax 4<small>tam şarjda gidilen km</small></label><input type="number" id="joieKm" min="1" step="1"></div>
+  </div>
+
+  <div class="sec" style="--c:#ff8800"><h2>BAKIM ÖMÜRLERİ</h2>
+    <div class="row"><label>Motor ömrü<small>kaç km'de bakım gerekir</small></label><input type="number" id="lifeMotor" min="1"></div>
+    <div class="row"><label>Lastik ömrü<small>kaç km'de değişir</small></label><input type="number" id="lifeLastik" min="1"></div>
+    <div class="row"><label>Batarya ömrü<small>kaç şarjda değişir</small></label><input type="number" id="lifeBatarya" min="1"></div>
+    <div class="row"><label>Uyarı eşiği<small>çubuk bu puanın altında sarı</small></label><input type="number" id="thrWarn" min="1" max="99"></div>
+    <div class="row"><label>Kritik eşik<small>çubuk bu puanın altında kırmızı</small></label><input type="number" id="thrDanger" min="1" max="99"></div>
+  </div>
+
+  <div class="sec" style="--c:#ff3355"><h2>KRİTİK PİL UYARISI</h2>
+    <div class="row"><label>Sesli ve titreşimli uyarı<small>yolculukta ve arka planda</small></label><label class="sw"><input type="checkbox" id="critOn"><span></span></label></div>
+    <div class="row"><label>Uyarı seviyeleri (%)<small>virgülle ayır · örn 15,10,5</small></label><input type="text" id="critLevels"></div>
+  </div>
+
+  <div class="sec" style="--c:#00ff88"><h2>PİL SAĞLIĞI TAHMİNİ</h2>
+    <div class="row"><label>Şarj döngüsü ömrü<small>bu kadar şarjda kapasite ≈ %80'e iner</small></label><input type="number" id="healthCycles" min="1"></div>
+  </div>
+
+  <div class="btns"><button class="btn" id="save">KAYDET</button><button class="btn d" id="reset">VARSAYILAN</button></div>
+  <div class="msg" id="saveMsg"></div>
+
+  <div class="sec" style="--c:#00e5ff;margin-top:18px"><h2>GÜNCELLEME</h2>
+    <div class="row"><label>Yüklü sürüm</label><b id="curVer" style="font:700 16px 'Share Tech Mono',monospace;color:#fff">—</b></div>
+    <div class="row"><label>GitHub deposu<small>güncellemeler buradaki Release'lardan gelir</small></label><input type="text" id="repo" style="width:170px"></div>
+    <div class="btns"><button class="btn o" id="chk">KONTROL ET</button><button class="btn" id="inst" style="display:none">İNDİR VE KUR</button></div>
+    <div class="prog" id="prog"><i id="progI"></i></div>
+    <div class="msg" id="upMsg"></div>
+  </div>
+</div>
+<div class="toast" id="toast"></div>
+
+<script>
+const $=id=>document.getElementById(id);
+const S=window.BATMON_SETTINGS, D=window.BATMON_DEFAULTS;
+function toast(m){const t=$('toast');t.textContent=m;t.className='toast show';clearTimeout(t._t);t._t=setTimeout(()=>t.className='toast',2200);}
+function fill(s){
+  $('nunaKm').value=s.nuna.km;$('joieKm').value=s.joie.km;
+  $('lifeMotor').value=s.life.motor;$('lifeLastik').value=s.life.lastik;$('lifeBatarya').value=s.life.batarya;
+  $('thrWarn').value=s.thr.warn;$('thrDanger').value=s.thr.danger;
+  $('critOn').checked=!!s.crit.on;$('critLevels').value=s.crit.levels.join(',');
+  $('healthCycles').value=s.health.cycles;$('repo').value=s.repo;
+}
+function read(){
+  return {nuna:{km:+$('nunaKm').value},joie:{km:+$('joieKm').value},
+    life:{motor:+$('lifeMotor').value,lastik:+$('lifeLastik').value,batarya:+$('lifeBatarya').value},
+    thr:{warn:+$('thrWarn').value,danger:+$('thrDanger').value},
+    crit:{on:$('critOn').checked,levels:$('critLevels').value.split(',').map(x=>parseInt(x,10)).filter(x=>x>0&&x<100)},
+    health:{cycles:+$('healthCycles').value},repo:$('repo').value.trim()||D.repo};
+}
+fill(S);
+$('save').onclick=async()=>{ const r=await BATMON_SAVE(read()); $('saveMsg').textContent = r==='cloud'?'✓ Kaydedildi ve buluta gönderildi — araç sayfalarında geçerli':'✓ Bu cihaza kaydedildi (bulut bağlantısı yok)'; toast('✓ AYARLAR KAYDEDİLDİ'); setTimeout(()=>fill(JSON.parse(localStorage.getItem('batmon_settings'))),50); };
+$('reset').onclick=async()=>{ if(!confirm('Tüm ayarlar varsayılana dönsün mü?')) return; fill(D); await BATMON_SAVE(D); toast('Varsayılana dönüldü'); };
+
+// ───── Güncelleme (yalnızca Android uygulamasında) ─────
+const native = !!(window.Capacitor && Capacitor.isNativePlatform && Capacitor.isNativePlatform());
+let found=null;
+function upMsg(t,err){ const m=$('upMsg'); m.textContent=t; m.style.color=err?'#ff3355':''; }
+if(!native){ $('curVer').textContent='web'; upMsg('Uygulama içi güncelleme yalnızca Android uygulamasında çalışır.'); $('chk').disabled=true; }
+else window.addEventListener('load',async()=>{ try{ const i=await window.BatmonUpdate.info(); $('curVer').textContent=i.version+' ('+i.build+')'; }catch(e){} if(/update=1/.test(location.search)) $('chk').click(); });
+$('chk').onclick=async()=>{
+  if(!window.BatmonUpdate){ upMsg('Güncelleme modülü yüklenmedi',true); return; }
+  upMsg('⏳ Kontrol ediliyor…'); $('inst').style.display='none';
+  try{
+    await BATMON_SAVE(Object.assign({},S,{repo:$('repo').value.trim()||D.repo}));
+    const r=await window.BatmonUpdate.check($('repo').value.trim()||D.repo);
+    if(!r){ upMsg('Sürüm bilgisi alınamadı. Depo herkese açık (public) mı ve Release var mı?',true); return; }
+    if(r.newer){ found=r; upMsg('✓ Yeni sürüm var: '+r.name+(r.notes?'\n'+r.notes.slice(0,200):'')); $('inst').style.display='block'; }
+    else upMsg('✓ Güncelsin — en son sürüm yüklü ('+r.name+')');
+  }catch(e){ upMsg('✕ '+((e&&e.message)||e),true); }
+};
+$('inst').onclick=async()=>{
+  if(!found) return;
+  const U=window.BatmonUpdate;
+  try{
+    if(!(await U.canInstall())){ upMsg('Bilinmeyen kaynaklardan yükleme izni gerekli — açılan ekranda BATMON için izin ver, sonra tekrar bas'); await U.openSettings(); return; }
+    $('prog').style.display='block'; upMsg('⏳ İndiriliyor…');
+    await U.download(found.url,p=>{ $('progI').style.width=p+'%'; upMsg('⏳ İndiriliyor… %'+p); });
+    $('progI').style.width='100%'; upMsg('✓ İndirildi — yükleyici açılıyor'); await U.install();
+  }catch(e){ upMsg('✕ '+((e&&e.message)||e),true); }
+};
+</script>
+<script src="nav.js"></script>
+<script src="native.js"></script>
+</body>
+</html>

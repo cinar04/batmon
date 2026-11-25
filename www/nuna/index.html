@@ -7,6 +7,7 @@
 <link rel="manifest" href="../manifest.json">
 <link rel="icon" type="image/svg+xml" href="logo.svg">
 <link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=Barlow+Condensed:wght@300;400;600;700;900&display=swap" rel="stylesheet">
+<script src="../settings.js"></script>
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css"/>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
@@ -432,7 +433,7 @@
       </div>
       <div class="decay-info">
         <span>⚡</span>
-        <span>Toplam batarya kapasitesi <b>30 km</b>dir</span>
+        <span>Toplam batarya kapasitesi <b class="capKm">30 km</b>dir</span>
       </div>
     </div>
 
@@ -593,7 +594,7 @@
 // ════════════════════════════════════════
 //  SABİTLER
 // ════════════════════════════════════════
-const MAX_S       = 30000;   // 30000 metre = 30 km kapasite
+const MAX_S       = ((window.BATMON_SETTINGS||{}).nuna||{km:30}).km*1000;   // metre cinsinden kapasite (Ayarlar'dan)
 let state = (()=>{ try{ return JSON.parse(localStorage.getItem('batmon_nuna'))||null; }catch(e){return null;} })() || {
   remainS:MAX_S, totalUsedS:0, sessions:0, charges:0, totalKm:0, totalCharges:0, log:[], tripHistory:[]
 };
@@ -703,7 +704,7 @@ function chargeDevice(){
   state.remainS = MAX_S;
   state.charges++;
   state.totalCharges = state.charges;  // senkron tut
-  state.log.push({type:'charge',action:'PİL ŞARJ EDİLDİ',detail:`→ ${fmt(MAX_S)} (30km)`,time:now()});
+  state.log.push({type:'charge',action:'PİL ŞARJ EDİLDİ',detail:`→ ${fmt(MAX_S)} (${MAX_S/1000}km)`,time:now()});
   save(); updateUI();
   showToast('⚡ PİL TAMAMEN ŞARJ EDİLDİ');
 }

@@ -22,3 +22,11 @@ Google servisleri olmayan Huawei'lerde konum ve bildirim çalışması için:
 3. Ayarlar → Pil → Uygulama başlatma → BATMON → **Manuel yönet** → üç seçeneği de aç (otomatik başlat, ikincil başlat, arka planda çalıştır).
 4. Telefonun Konum (GPS) anahtarı açık olmalı.
 Yolculuk bildirimi: mesafe, süre (canlı sayaç), pil çubuğu ve DURDUR düğmesi kilit ekranında görünür.
+
+## v1.3 yenilikleri
+- ⚙ AYAR sekmesi: kapasite, bakım ömürleri, eşikler, kritik pil uyarısı, güncelleme
+- 🗺 Yolculuk izleri (GPS çizgisi, harita üzerinde), 🔋 pil sağlığı tahmini/ölçümü
+- 🔔 Kritik pilde sesli + titreşimli uyarı
+- ⬇ Uygulama içi güncelleme (GitHub Release; repo public olmalı, yoksa version.json yedeği)
+- Sabit imza anahtarı eklendi: **mevcut BATMON'u bir kez silip** yeni APK'yı kur (veriler Firestore'da güvende).
+- Yükleme: `.github` klasörü ve `android/app/batmon.keystore` dahil tüm dosyaları kopyala → `git add .` → `git commit -m v1.3` → `git push`
